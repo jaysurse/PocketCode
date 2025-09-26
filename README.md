@@ -11,4 +11,4 @@ PocketCode is a mobile code editor app designed to let developers write, edit, a
 ## 📱 Installation
 Clone the repository:
 ```bash
-git clone https://github.com/your-username/PocketCode.git
+git clone https://github.com/jaysurse/PocketCode
