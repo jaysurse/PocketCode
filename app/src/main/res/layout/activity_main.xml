@@ -1,19 +1,281 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    android:orientation="vertical"
+    android:background="@color/ide_background">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <!-- Main Toolbar -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/toolbar_background"
+        android:elevation="4dp"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <!-- File Operations -->
+            <ImageButton
+                android:id="@+id/newFileBtn"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="New File"
+                android:padding="12dp"
+                android:src="@android:drawable/ic_menu_add"
+                android:tint="@color/text_primary" />
+
+            <ImageButton
+                android:id="@+id/openBtn"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Open File"
+                android:padding="12dp"
+                android:src="@android:drawable/ic_menu_more"
+                android:tint="@color/text_primary" />
+
+            <ImageButton
+                android:id="@+id/saveBtn"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Save File"
+                android:padding="12dp"
+                android:src="@android:drawable/ic_menu_save"
+                android:tint="@color/text_primary" />
+
+            <!-- Divider -->
+            <View
+                android:layout_width="1dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:background="@color/divider_color" />
+
+            <!-- Language Selection -->
+            <Spinner
+                android:id="@+id/langSpinner"
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:popupBackground="@color/editor_background" />
+
+            <!-- Code Actions -->
+            <ImageButton
+                android:id="@+id/formatBtn"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Format Code"
+                android:padding="12dp"
+                android:src="@android:drawable/ic_menu_edit"
+                android:tint="@color/text_primary" />
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:background="@color/divider_color" />
+
+            <!-- Run Button -->
+            <Button
+                android:id="@+id/runBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:layout_marginEnd="16dp"
+                android:backgroundTint="@color/accent"
+                android:text="▶ Run"
+                android:textColor="@android:color/white"
+                android:textSize="14sp" />
+
+        </LinearLayout>
+    </androidx.appcompat.widget.Toolbar>
+
+    <!-- Secondary Toolbar with File Info -->
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:background="@color/secondary_toolbar_background"
+        android:orientation="horizontal"
+        android:padding="8dp"
+        android:gravity="center_vertical">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <TextView
+            android:id="@+id/fileNameText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="📄 Untitled.java"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp"
+            android:maxLines="1"
+            android:ellipsize="middle" />
+
+        <TextView
+            android:id="@+id/cursorPositionText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="📍 Ln 1, Col 1"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp"
+            android:layout_marginStart="16dp" />
+
+        <TextView
+            android:id="@+id/encodingText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🔤 UTF-8"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp"
+            android:layout_marginStart="16dp" />
+
+    </LinearLayout>
+
+    <!-- Main Content Area -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <!-- Code Editor Container -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:layout_margin="8dp"
+            app:cardBackgroundColor="@color/editor_background"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="2dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+
+                <!-- Line Numbers -->
+                <TextView
+                    android:id="@+id/lineNumbers"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:background="@color/line_number_background"
+                    android:padding="8dp"
+                    android:text="1\n2\n3\n4\n5"
+                    android:textColor="@color/line_number_text"
+                    android:textSize="12sp"
+                    android:gravity="end"
+                    android:minWidth="40dp" />
+
+                <!-- Divider between line numbers and editor -->
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/divider_color" />
+
+                <!-- Code Editor -->
+                <EditText
+                    android:id="@+id/codeEditor"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@android:color/transparent"
+                    android:fontFamily="monospace"
+                    android:gravity="top|start"
+                    android:hint="✨ Start coding here...\n\n💡 Tips:\n• Select a language from the dropdown above\n• Use Ctrl+S to save your work\n• Click ▶ Run to execute your code\n• Tap Format to organize your code\n\nHappy coding with PocketCode! 🚀"
+                    android:inputType="textMultiLine|textNoSuggestions"
+                    android:padding="8dp"
+                    android:scrollbars="vertical|horizontal"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_secondary"
+                    android:textSize="14sp"
+                    android:textIsSelectable="true" />
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Bottom Panel with Output -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/console_background"
+            android:orientation="vertical"
+            android:padding="4dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="📤 Console Output"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:padding="4dp" />
+
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="180dp">
+
+                <TextView
+                    android:id="@+id/outputConsole"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="monospace"
+                    android:padding="8dp"
+                    android:text="🎯 Welcome to PocketCode!\n\n📋 Your code execution results will appear here...\n\n🔥 Quick Start:\n1️⃣ Choose your programming language\n2️⃣ Write or paste your code\n3️⃣ Hit the ▶ Run button\n4️⃣ See your output here!\n\n✨ Happy coding!"
+                    android:textColor="@color/console_text"
+                    android:textSize="13sp" />
+
+            </ScrollView>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Status Bar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/status_bar_background"
+        android:orientation="horizontal"
+        android:padding="4dp"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/statusText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Ready"
+            android:textColor="@color/text_secondary"
+            android:textSize="11sp"
+            android:padding="4dp" />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyleSmall"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:visibility="gone"
+            android:layout_marginEnd="8dp" />
+
+        <TextView
+            android:id="@+id/memoryUsage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Memory: 45MB"
+            android:textColor="@color/text_secondary"
+            android:textSize="11sp"
+            android:padding="4dp" />
+
+    </LinearLayout>
+
+</LinearLayout>
