@@ -1,5 +1,119 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <!-- Primary Background Colors -->
+    <color name="ide_background">#FF1E1E1E</color>
+    <color name="toolbar_background">#FF2D2D30</color>
+    <color name="secondary_toolbar_background">#FF383838</color>
+    <color name="editor_background">#FF252526</color>
+    <color name="console_background">#FF1E1E1E</color>
+    <color name="console_header_background">#FF2D2D30</color>
+    <color name="status_bar_background">#FF007ACC</color>
+
+    <!-- Panel and Tab Colors -->
+    <color name="tab_background">#FF2D2D30</color>
+    <color name="panel_background">#FF252526</color>
+    <color name="panel_header_background">#FF2D2D30</color>
+    <color name="input_terminal_background">#FF2D2D30</color>
+
+    <!-- Text Colors -->
+    <color name="text_primary">#FFFFFFFF</color>
+    <color name="text_secondary">#FFCCCCCC</color>
+    <color name="editor_text">#FFFFFFFF</color>
+    <color name="console_text">#FF00FF00</color>
+    <color name="line_number_text">#FF858585</color>
+    <color name="hint_text">#FF666666</color>
+    <color name="status_text">#FFFFFFFF</color>
+
+    <!-- UI Element Colors -->
+    <color name="line_number_background">#FF2F2F2F</color>
+    <color name="divider_color">#FF404040</color>
+    <color name="accent">#FF007ACC</color>
+    <color name="accent_color">#FF007ACC</color>
+
+    <!-- Button Colors -->
+    <color name="success">#FF28A745</color>
+    <color name="warning">#FFDC3545</color>
+    <color name="info">#FF17A2B8</color>
+    <color name="danger">#FFDC3545</color>
+
+    <!-- Selection and Focus Colors -->
+    <color name="selection_background">#FF264F78</color>
+    <color name="focus_color">#FF007ACC</color>
+    <color name="hover_color">#FF3E3E42</color>
+
+    <!-- Syntax Highlighting Colors (Optional for future use) -->
+    <color name="syntax_keyword">#FF569CD6</color>
+    <color name="syntax_string">#FFCE9178</color>
+    <color name="syntax_comment">#FF6A9955</color>
+    <color name="syntax_number">#FFB5CEA8</color>
+    <color name="syntax_function">#FFDCDCAA</color>
+    <color name="syntax_variable">#FF9CDCFE</color>
+    <color name="syntax_operator">#FFD4D4D4</color>
+
+    <!-- Additional Theme Colors -->
+    <color name="border_color">#FF404040</color>
+    <color name="disabled_color">#FF6F6F6F</color>
+    <color name="error_color">#FFF14C4C</color>
+    <color name="warning_text">#FFFFCC02</color>
+    <color name="success_text">#FF73C991</color>
+
+    <!-- Tab States -->
+    <color name="tab_active">#FF007ACC</color>
+    <color name="tab_inactive">#FF858585</color>
+    <color name="tab_hover">#FF3E3E42</color>
+
+    <!-- ScrollBar Colors -->
+    <color name="scrollbar_thumb">#FF424242</color>
+    <color name="scrollbar_track">#FF2D2D30</color>
+
+    <!-- File Explorer Colors -->
+    <color name="file_icon_color">#FFCCCCCC</color>
+    <color name="folder_icon_color">#FFDCDCAA</color>
+    <color name="file_selected">#FF264F78</color>
+    <color name="file_hover">#FF2A2A2A</color>
+
+    <!-- Progress and Loading Colors -->
+    <color name="progress_primary">#FF007ACC</color>
+    <color name="progress_secondary">#FF404040</color>
+    <color name="loading_background">#80000000</color>
+
+    <!-- Overlay Colors -->
+    <color name="overlay_background">#80000000</color>
+    <color name="modal_background">#FF2D2D30</color>
+    <color name="tooltip_background">#FF1F1F23</color>
+    <color name="tooltip_text">#FFFFFFFF</color>
+
+    <!-- Console Output Types -->
+    <color name="console_output">#FFFFFFFF</color>
+    <color name="console_error">#FFF14C4C</color>
+    <color name="console_warning">#FFFFCC02</color>
+    <color name="console_info">#FF73C991</color>
+    <color name="console_debug">#FF9CDCFE</color>
+
+    <!-- Input Field Colors -->
+    <color name="input_background">#FF3C3C3C</color>
+    <color name="input_border">#FF007ACC</color>
+    <color name="input_border_inactive">#FF404040</color>
+    <color name="placeholder_text">#FF858585</color>
+
+    <!-- Dropdown/Spinner Colors -->
+    <color name="dropdown_background">#FF2D2D30</color>
+    <color name="dropdown_item_selected">#FF007ACC</color>
+    <color name="dropdown_divider">#FF404040</color>
+
+    <!-- Card and Surface Colors -->
+    <color name="card_background">#FF252526</color>
+    <color name="surface_color">#FF2D2D30</color>
+    <color name="surface_variant">#FF383838</color>
+
+    <!-- Semantic Colors for different file types -->
+    <color name="java_file">#FFED8B00</color>
+    <color name="python_file">#FF3776AB</color>
+    <color name="javascript_file">#FFF7DF1E</color>
+    <color name="cpp_file">#FF00599C</color>
+    <color name="html_file">#FFE34F26</color>
+    <color name="css_file">#FF1572B6</color>
+    <color name="xml_file">#FFFF6600</color>
+    <color name="json_file">#FF000000</color>
+    <color name="text_file">#FFCCCCCC</color>
 </resources>
