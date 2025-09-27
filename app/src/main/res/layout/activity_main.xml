@@ -75,6 +75,20 @@
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp" />
 
+            <!-- Stop Button -->
+            <Button
+                android:id="@+id/stopBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:layout_marginStart="4dp"
+                android:background="@android:color/holo_red_dark"
+                android:text="⏹ Stop"
+                android:textColor="@android:color/white"
+                android:textSize="14sp"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:enabled="false" />
+
         </LinearLayout>
     </androidx.appcompat.widget.Toolbar>
 
@@ -166,62 +180,7 @@
 
         </LinearLayout>
 
-        <!-- Input Section (Collapsible) -->
-        <LinearLayout
-            android:id="@+id/inputSection"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/input_background"
-            android:orientation="vertical"
-            android:visibility="gone">
-
-            <!-- Input Header -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:background="@color/input_header_background"
-                android:gravity="center_vertical"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Program Input"
-                    android:textColor="@color/text_primary"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <ImageButton
-                    android:id="@+id/closeInputBtn"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:src="@android:drawable/ic_menu_close_clear_cancel"
-                    android:tint="@color/text_secondary" />
-
-            </LinearLayout>
-
-            <!-- Input Field -->
-            <EditText
-                android:id="@+id/inputField"
-                android:layout_width="match_parent"
-                android:layout_height="80dp"
-                android:layout_margin="12dp"
-                android:background="@android:drawable/edit_text"
-                android:fontFamily="monospace"
-                android:gravity="top|start"
-                android:hint="Enter input values (one per line)"
-                android:inputType="textMultiLine"
-                android:padding="12dp"
-                android:textColor="@color/text_primary"
-                android:textColorHint="@color/text_secondary"
-                android:textSize="13sp" />
-
-        </LinearLayout>
-
-        <!-- Output Console -->
+        <!-- Interactive Console -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="200dp"
@@ -241,19 +200,19 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Output"
+                    android:text="Interactive Console"
                     android:textColor="@color/text_primary"
                     android:textSize="14sp"
                     android:textStyle="bold" />
 
-                <ImageButton
-                    android:id="@+id/showInputBtn"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="Show Input"
-                    android:src="@android:drawable/ic_menu_edit"
-                    android:tint="@color/text_secondary" />
+                <TextView
+                    android:id="@+id/consoleStatusText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Ready"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="11sp"
+                    android:layout_marginEnd="8dp" />
 
                 <ImageButton
                     android:id="@+id/clearConsoleBtn"
@@ -266,24 +225,74 @@
 
             </LinearLayout>
 
-            <!-- Console Output -->
-            <ScrollView
+            <!-- Console Content -->
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="1"
-                android:padding="12dp">
+                android:layout_weight="1">
 
-                <TextView
-                    android:id="@+id/outputConsole"
+                <!-- Console Output Area -->
+                <ScrollView
+                    android:id="@+id/consoleScrollView"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="monospace"
-                    android:text="Ready to run code...\n\nSelect a language and write your code above."
-                    android:textColor="@color/console_text"
-                    android:textSize="13sp"
-                    android:textIsSelectable="true" />
+                    android:layout_height="match_parent"
+                    android:padding="12dp">
 
-            </ScrollView>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/outputConsole"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="monospace"
+                            android:text="Interactive Console Ready\n\n• Run code to see output here\n• Type input when prompted\n• Press Enter to send input"
+                            android:textColor="@color/console_text"
+                            android:textSize="13sp"
+                            android:textIsSelectable="true" />
+
+                        <!-- Interactive Input Line (Initially Hidden) -->
+                        <LinearLayout
+                            android:id="@+id/inputPromptLayout"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:visibility="gone"
+                            android:layout_marginTop="4dp">
+
+                            <TextView
+                                android:id="@+id/inputPromptText"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="➤ "
+                                android:textColor="@color/console_text"
+                                android:fontFamily="monospace"
+                                android:textSize="13sp" />
+
+                            <EditText
+                                android:id="@+id/consoleInputField"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:background="@android:color/transparent"
+                                android:fontFamily="monospace"
+                                android:hint="Type input and press Enter..."
+                                android:inputType="text"
+                                android:textColor="@color/console_text"
+                                android:textColorHint="@color/text_secondary"
+                                android:textSize="13sp"
+                                android:padding="4dp" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </ScrollView>
+
+            </RelativeLayout>
 
         </LinearLayout>
 

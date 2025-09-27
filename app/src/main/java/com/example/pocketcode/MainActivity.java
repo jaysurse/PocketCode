@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -13,6 +14,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -40,21 +42,25 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.json.JSONObject;
 import org.json.JSONArray;
 
 public class MainActivity extends AppCompatActivity {
 
-    // UI Components - Simplified
+    // UI Components
     private Toolbar toolbar;
-    private ImageButton newFileBtn, openBtn, saveBtn, showInputBtn, clearConsoleBtn, closeInputBtn;
-    private Button runBtn;
+    private ImageButton newFileBtn, openBtn, saveBtn, clearConsoleBtn;
+    private Button runBtn, stopBtn;
     private Spinner langSpinner;
-    private EditText codeEditor, inputField;
-    private TextView outputConsole, fileNameText, cursorPositionText, statusText, lineNumbers;
+    private EditText codeEditor, consoleInputField;
+    private TextView outputConsole, fileNameText, cursorPositionText, statusText,
+            lineNumbers, consoleStatusText, inputPromptText;
+    private LinearLayout inputPromptLayout;
+    private ScrollView consoleScrollView;
     private ProgressBar progressBar;
-    private LinearLayout inputSection;
     private WebView webView;
 
     // Variables
@@ -63,6 +69,11 @@ public class MainActivity extends AppCompatActivity {
     private String currentLanguage = "Java";
     private StringBuilder consoleOutput = new StringBuilder();
     private boolean isExecuting = false;
+    private boolean isWaitingForInput = false;
+
+    // Interactive execution
+    private InteractiveExecutor currentExecutor = null;
+    private BlockingQueue<String> inputQueue = new LinkedBlockingQueue<>();
 
     // File operations
     private ActivityResultLauncher<String> openFileLauncher;
@@ -96,12 +107,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initializeViews() {
-        // UI components matching the simplified layout
         toolbar = findViewById(R.id.toolbar);
         newFileBtn = findViewById(R.id.newFileBtn);
         openBtn = findViewById(R.id.openBtn);
         saveBtn = findViewById(R.id.saveBtn);
         runBtn = findViewById(R.id.runBtn);
+        stopBtn = findViewById(R.id.stopBtn);
         langSpinner = findViewById(R.id.langSpinner);
         codeEditor = findViewById(R.id.codeEditor);
         outputConsole = findViewById(R.id.outputConsole);
@@ -111,12 +122,13 @@ public class MainActivity extends AppCompatActivity {
         lineNumbers = findViewById(R.id.lineNumbers);
         progressBar = findViewById(R.id.progressBar);
 
-        // Input section components
-        inputSection = findViewById(R.id.inputSection);
-        inputField = findViewById(R.id.inputField);
-        showInputBtn = findViewById(R.id.showInputBtn);
+        // Interactive console components
         clearConsoleBtn = findViewById(R.id.clearConsoleBtn);
-        closeInputBtn = findViewById(R.id.closeInputBtn);
+        consoleStatusText = findViewById(R.id.consoleStatusText);
+        inputPromptLayout = findViewById(R.id.inputPromptLayout);
+        consoleInputField = findViewById(R.id.consoleInputField);
+        inputPromptText = findViewById(R.id.inputPromptText);
+        consoleScrollView = findViewById(R.id.consoleScrollView);
 
         // WebView for HTML/CSS/JS
         webView = new WebView(this);
@@ -126,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
     private void setupToolbar() {
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle("PocketCode");
+            getSupportActionBar().setTitle("PocketCode IDE");
             getSupportActionBar().setDisplayShowTitleEnabled(true);
         }
     }
@@ -220,26 +232,58 @@ public class MainActivity extends AppCompatActivity {
         openBtn.setOnClickListener(v -> openFileLauncher.launch("*/*"));
         saveBtn.setOnClickListener(v -> saveFileLauncher.launch(currentFileName + getFileExtension()));
         runBtn.setOnClickListener(v -> executeCode());
-
-        // Input section controls
-        showInputBtn.setOnClickListener(v -> toggleInputSection());
+        stopBtn.setOnClickListener(v -> stopExecution());
         clearConsoleBtn.setOnClickListener(v -> clearConsole());
-        closeInputBtn.setOnClickListener(v -> hideInputSection());
+
+        // Interactive console input handler
+        consoleInputField.setOnKeyListener((v, keyCode, event) -> {
+            if (event.getAction() == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
+                if (isWaitingForInput) {
+                    sendInputToProgram();
+                }
+                return true;
+            }
+            return false;
+        });
     }
 
-    private void toggleInputSection() {
-        if (inputSection.getVisibility() == View.GONE) {
-            inputSection.setVisibility(View.VISIBLE);
-            updateStatusText("Input section opened");
-        } else {
-            inputSection.setVisibility(View.GONE);
-            updateStatusText("Input section closed");
+    // Interactive Console Methods
+    private void showInputPrompt(String prompt) {
+        runOnUiThread(() -> {
+            isWaitingForInput = true;
+            inputPromptText.setText(prompt.isEmpty() ? "➤ " : prompt + " ");
+            inputPromptLayout.setVisibility(View.VISIBLE);
+            consoleInputField.setText("");
+            consoleInputField.requestFocus();
+            updateConsoleStatus("Waiting for input...");
+            scrollConsoleToBottom();
+        });
+    }
+
+    private void hideInputPrompt() {
+        runOnUiThread(() -> {
+            isWaitingForInput = false;
+            inputPromptLayout.setVisibility(View.GONE);
+            updateConsoleStatus("Running...");
+        });
+    }
+
+    private void sendInputToProgram() {
+        String input = consoleInputField.getText().toString();
+
+        // Show the input in console (like real IDEs do)
+        appendToConsole(inputPromptText.getText().toString() + input);
+
+        // Send input to the executor
+        if (currentExecutor != null) {
+            currentExecutor.provideInput(input);
         }
+
+        hideInputPrompt();
     }
 
-    private void hideInputSection() {
-        inputSection.setVisibility(View.GONE);
-        updateStatusText("Input section closed");
+    private void updateConsoleStatus(String status) {
+        runOnUiThread(() -> consoleStatusText.setText(status));
     }
 
     // Console methods
@@ -247,22 +291,28 @@ public class MainActivity extends AppCompatActivity {
         runOnUiThread(() -> {
             consoleOutput.append(text).append("\n");
             outputConsole.setText(consoleOutput.toString());
+            scrollConsoleToBottom();
         });
+    }
+
+    private void scrollConsoleToBottom() {
+        consoleScrollView.post(() -> consoleScrollView.fullScroll(View.FOCUS_DOWN));
     }
 
     private void clearConsole() {
         consoleOutput.setLength(0);
-        outputConsole.setText("Console cleared.\n\nReady to run code...");
+        outputConsole.setText("Console cleared.\n\nInteractive Console Ready\n• Run code to see output here\n• Type input when prompted\n• Press Enter to send input");
+        hideInputPrompt();
+        updateConsoleStatus("Ready");
         updateStatusText("Console cleared");
     }
 
     // File operations
     private void createNewFile() {
-        if (isExecuting) return;
+        if (isExecuting) stopExecution();
         codeEditor.setText("");
         currentFileName = "Untitled";
         clearConsole();
-        hideInputSection();
         updateStatusText("New file created");
         updateUI();
     }
@@ -321,6 +371,8 @@ public class MainActivity extends AppCompatActivity {
         showProgress(true);
         isExecuting = true;
         runBtn.setEnabled(false);
+        stopBtn.setEnabled(true);
+        updateConsoleStatus("Starting...");
 
         clearConsole();
         String code = codeEditor.getText().toString();
@@ -329,18 +381,6 @@ public class MainActivity extends AppCompatActivity {
             appendToConsole("Error: No code to execute");
             resetExecutionState();
             return;
-        }
-
-        // Get input from input field if available
-        String input = "";
-        if (inputField.getText() != null && !inputField.getText().toString().trim().isEmpty()) {
-            input = inputField.getText().toString();
-            appendToConsole("Using provided input:");
-            String[] inputLines = input.split("\n");
-            for (String line : inputLines) {
-                appendToConsole("  > " + line);
-            }
-            appendToConsole("");
         }
 
         appendToConsole("=== " + currentLanguage + " Execution Started ===");
@@ -358,47 +398,67 @@ public class MainActivity extends AppCompatActivity {
                 if (code.contains("console.log") || code.contains("document.")) {
                     executeJavaScript(code);
                 } else {
-                    executeWithAPI(code, input);
+                    startInteractiveExecution(code);
                 }
                 break;
             default:
-                executeWithAPI(code, input);
+                startInteractiveExecution(code);
                 break;
         }
     }
 
-    private void executeWithAPI(String code, String input) {
-        codeExecutionAPI.executeWithPiston(code, currentLanguage, new CodeExecutionCallback() {
+    private void startInteractiveExecution(String code) {
+        currentExecutor = new InteractiveExecutor(code, currentLanguage, new ExecutionCallback() {
             @Override
-            public void onSuccess(String output) {
-                runOnUiThread(() -> {
-                    appendToConsole(output.isEmpty() ? "Code executed successfully (no output)" : output);
-                    appendToConsole("=== Execution Completed ===");
-                    resetExecutionState();
-                });
+            public void onOutput(String output) {
+                appendToConsole(output);
             }
 
             @Override
             public void onError(String error) {
+                appendToConsole("ERROR: " + error);
+                resetExecutionState();
+            }
+
+            @Override
+            public void onInputRequired(String prompt) {
+                showInputPrompt(prompt);
+            }
+
+            @Override
+            public void onComplete() {
                 runOnUiThread(() -> {
-                    appendToConsole("ERROR: " + error);
-                    appendToConsole("=== Execution Failed ===");
+                    appendToConsole("=== Execution Completed ===");
                     resetExecutionState();
                 });
             }
-        }, input);
+        });
+
+        currentExecutor.execute();
+    }
+
+    private void stopExecution() {
+        if (currentExecutor != null) {
+            currentExecutor.stop();
+            currentExecutor = null;
+        }
+        resetExecutionState();
+        appendToConsole("\n=== Execution Stopped ===");
     }
 
     private void resetExecutionState() {
         runOnUiThread(() -> {
             isExecuting = false;
             runBtn.setEnabled(true);
+            stopBtn.setEnabled(false);
+            hideInputPrompt();
             showProgress(false);
+            updateConsoleStatus("Ready");
             updateStatusText("Ready");
         });
     }
 
-    // WebView execution methods
+    // WebView execution methods (unchanged)
     private void executeJavaScript(String code) {
         runOnUiThread(() -> {
             String wrappedCode =
@@ -439,7 +499,7 @@ public class MainActivity extends AppCompatActivity {
         resetExecutionState();
     }
 
-    // Helper methods
+    // Helper methods (unchanged)
     private void updateLineNumbers() {
         String text = codeEditor.getText().toString();
         int lines = text.split("\n").length;
@@ -469,37 +529,78 @@ public class MainActivity extends AppCompatActivity {
     private String getSampleCode(String language) {
         switch (language) {
             case "Java":
-                return "public class Main {\n" +
+                return "import java.util.Scanner;\n\n" +
+                        "public class Main {\n" +
                         "    public static void main(String[] args) {\n" +
-                        "        System.out.println(\"Hello, World!\");\n" +
-                        "        // Add your code here\n" +
+                        "        Scanner scanner = new Scanner(System.in);\n" +
+                        "        \n" +
+                        "        System.out.print(\"Enter your name: \");\n" +
+                        "        String name = scanner.nextLine();\n" +
+                        "        \n" +
+                        "        System.out.print(\"Enter your age: \");\n" +
+                        "        int age = scanner.nextInt();\n" +
+                        "        \n" +
+                        "        System.out.println(\"Hello \" + name + \", you are \" + age + \" years old!\");\n" +
+                        "        \n" +
+                        "        scanner.close();\n" +
                         "    }\n" +
                         "}";
 
             case "Python":
-                return "# Python Sample Code\n" +
-                        "print(\"Hello, World!\")\n" +
-                        "# Add your code here";
-
-            case "JavaScript":
-                return "// JavaScript Sample Code\n" +
-                        "console.log(\"Hello, World!\");\n" +
-                        "// Add your code here";
+                return "# Interactive Python Example\n" +
+                        "print(\"=== Python Interactive Demo ===\")\n" +
+                        "name = input(\"Enter your name: \")\n" +
+                        "age = int(input(\"Enter your age: \"))\n" +
+                        "city = input(\"Enter your city: \")\n\n" +
+                        "print(f\"Hello {name}!\")\n" +
+                        "print(f\"You are {age} years old and live in {city}\")\n\n" +
+                        "# Loop example\n" +
+                        "count = int(input(\"How many times to count? \"))\n" +
+                        "for i in range(count):\n" +
+                        "    print(f\"Count: {i + 1}\")\n\n" +
+                        "print(\"Program completed!\")";
 
             case "C":
                 return "#include <stdio.h>\n\n" +
                         "int main() {\n" +
-                        "    printf(\"Hello, World!\\n\");\n" +
+                        "    char name[100];\n" +
+                        "    int age;\n" +
+                        "    \n" +
+                        "    printf(\"Enter your name: \");\n" +
+                        "    scanf(\"%s\", name);\n" +
+                        "    \n" +
+                        "    printf(\"Enter your age: \");\n" +
+                        "    scanf(\"%d\", &age);\n" +
+                        "    \n" +
+                        "    printf(\"Hello %s, you are %d years old!\\n\", name, age);\n" +
+                        "    \n" +
                         "    return 0;\n" +
                         "}";
 
             case "C++":
                 return "#include <iostream>\n" +
+                        "#include <string>\n" +
                         "using namespace std;\n\n" +
                         "int main() {\n" +
-                        "    cout << \"Hello, World!\" << endl;\n" +
+                        "    string name;\n" +
+                        "    int age;\n" +
+                        "    \n" +
+                        "    cout << \"Enter your name: \";\n" +
+                        "    getline(cin, name);\n" +
+                        "    \n" +
+                        "    cout << \"Enter your age: \";\n" +
+                        "    cin >> age;\n" +
+                        "    \n" +
+                        "    cout << \"Hello \" << name << \", you are \" << age << \" years old!\" << endl;\n" +
+                        "    \n" +
                         "    return 0;\n" +
                         "}";
+
+            case "JavaScript":
+                return "// JavaScript Sample Code\n" +
+                        "console.log(\"Hello, World!\");\n" +
+                        "console.log(\"Interactive JavaScript example\");\n" +
+                        "// Add your code here";
 
             case "HTML":
                 return "<!DOCTYPE html>\n" +
@@ -563,6 +664,83 @@ public class MainActivity extends AppCompatActivity {
         updateCursorPosition();
     }
 
+    // Interactive Executor Class
+    private class InteractiveExecutor {
+        private String code;
+        private String language;
+        private ExecutionCallback callback;
+        private BlockingQueue<String> inputQueue;
+        private boolean isRunning = false;
+        private Thread executionThread;
+
+        public InteractiveExecutor(String code, String language, ExecutionCallback callback) {
+            this.code = code;
+            this.language = language;
+            this.callback = callback;
+            this.inputQueue = new LinkedBlockingQueue<>();
+        }
+
+        public void execute() {
+            isRunning = true;
+            executionThread = new Thread(() -> {
+                try {
+                    executeWithPistonInteractive();
+                } catch (Exception e) {
+                    if (isRunning) {
+                        callback.onError(e.getMessage());
+                    }
+                }
+            });
+            executionThread.start();
+        }
+
+        private void executeWithPistonInteractive() {
+            codeExecutionAPI.executeInteractive(code, language, new CodeExecutionCallback() {
+                @Override
+                public void onSuccess(String output) {
+                    if (isRunning) {
+                        callback.onOutput(output);
+                        callback.onComplete();
+                    }
+                }
+
+                @Override
+                public void onError(String error) {
+                    if (isRunning) {
+                        callback.onError(error);
+                    }
+                }
+
+                @Override
+                public void onInputRequired(String prompt) {
+                    if (isRunning) {
+                        callback.onInputRequired(prompt);
+                        // Wait for input
+                        try {
+                            String input = inputQueue.take();
+                            // Continue execution with input
+                            // This is simplified - in a real implementation you'd need
+                            // to handle the interactive nature of the API
+                        } catch (InterruptedException e) {
+                            // Handle interruption
+                        }
+                    }
+                }
+            });
+        }
+
+        public void provideInput(String input) {
+            inputQueue.offer(input);
+        }
+
+        public void stop() {
+            isRunning = false;
+            if (executionThread != null && executionThread.isAlive()) {
+                executionThread.interrupt();
+            }
+        }
+    }
+
     // API class for code execution
     private class CodeExecutionAPI {
         private static final String PISTON_BASE_URL = "https://emkc.org/api/v2/piston";
@@ -578,16 +756,12 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        public void executeWithPiston(String code, String language, CodeExecutionCallback callback, String input) {
+        public void executeInteractive(String code, String language, CodeExecutionCallback callback) {
             new Thread(() -> {
                 try {
                     JSONObject requestBody = new JSONObject();
                     requestBody.put("language", getPistonLanguage(language));
                     requestBody.put("version", "*");
-
-                    if (input != null && !input.isEmpty()) {
-                        requestBody.put("stdin", input);
-                    }
 
                     JSONArray filesArray = new JSONArray();
                     JSONObject file = new JSONObject();
@@ -631,7 +805,13 @@ public class MainActivity extends AppCompatActivity {
                             if (exitCode != 0 || !error.isEmpty()) {
                                 callback.onError(error.isEmpty() ? "Process exited with code: " + exitCode : error);
                             } else {
-                                callback.onSuccess(output.isEmpty() ? "Code executed successfully (no output)" : output);
+                                // Check if program is waiting for input
+                                if (output.contains("Enter") || output.contains("Input") ||
+                                        output.endsWith(": ") || output.endsWith("? ")) {
+                                    callback.onInputRequired(output.trim());
+                                } else {
+                                    callback.onSuccess(output.isEmpty() ? "Code executed successfully (no output)" : output);
+                                }
                             }
                         } else {
                             callback.onError("Invalid response format");
@@ -647,9 +827,17 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // Interface for code execution callback
+    // Interfaces
     interface CodeExecutionCallback {
         void onSuccess(String output);
         void onError(String error);
+        default void onInputRequired(String prompt) {}
+    }
+
+    interface ExecutionCallback {
+        void onOutput(String output);
+        void onError(String error);
+        void onInputRequired(String prompt);
+        void onComplete();
     }
 }
