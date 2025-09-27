@@ -5,13 +5,13 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -40,43 +40,29 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import org.json.JSONObject;
 import org.json.JSONArray;
-import org.json.JSONException;
 
 public class MainActivity extends AppCompatActivity {
 
-    // UI Components - Original
+    // UI Components - Simplified
     private Toolbar toolbar;
-    private ImageButton newFileBtn, openBtn, saveBtn, formatBtn;
-    private Button runBtn, stopBtn;
+    private ImageButton newFileBtn, openBtn, saveBtn, showInputBtn, clearConsoleBtn, closeInputBtn;
+    private Button runBtn;
     private Spinner langSpinner;
-    private EditText codeEditor;
-    private TextView outputConsole, fileNameText, cursorPositionText,
-            encodingText, statusText, memoryUsage, lineNumbers;
+    private EditText codeEditor, inputField;
+    private TextView outputConsole, fileNameText, cursorPositionText, statusText, lineNumbers;
     private ProgressBar progressBar;
+    private LinearLayout inputSection;
     private WebView webView;
-    private EditText terminalInput;
-
-    // New UI Components for enhanced input handling
-    private EditText currentInputField;
-    private TextView inputQueueDisplay;
-    private Button addInputBtn, clearAllInputBtn;
-    private ArrayList<String> inputQueue = new ArrayList<>();
 
     // Variables
     private String currentFileName = "Untitled";
     private String[] supportedLanguages = {"Java", "Python", "JavaScript", "C++", "C", "HTML", "CSS"};
     private String currentLanguage = "Java";
     private StringBuilder consoleOutput = new StringBuilder();
-    private boolean isWaitingForInput = false;
     private boolean isExecuting = false;
-    private InteractiveExecutor currentExecutor = null;
 
     // File operations
     private ActivityResultLauncher<String> openFileLauncher;
@@ -110,32 +96,29 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initializeViews() {
-        // Original UI components
+        // UI components matching the simplified layout
         toolbar = findViewById(R.id.toolbar);
         newFileBtn = findViewById(R.id.newFileBtn);
         openBtn = findViewById(R.id.openBtn);
         saveBtn = findViewById(R.id.saveBtn);
-        formatBtn = findViewById(R.id.formatBtn);
         runBtn = findViewById(R.id.runBtn);
-        stopBtn = findViewById(R.id.stopBtn);
         langSpinner = findViewById(R.id.langSpinner);
         codeEditor = findViewById(R.id.codeEditor);
         outputConsole = findViewById(R.id.outputConsole);
-        terminalInput = findViewById(R.id.terminalInput);
         fileNameText = findViewById(R.id.fileNameText);
         cursorPositionText = findViewById(R.id.cursorPositionText);
-        encodingText = findViewById(R.id.encodingText);
         statusText = findViewById(R.id.statusText);
-        memoryUsage = findViewById(R.id.memoryUsage);
         lineNumbers = findViewById(R.id.lineNumbers);
         progressBar = findViewById(R.id.progressBar);
 
-        // New enhanced input handling components
-        currentInputField = findViewById(R.id.currentInputField);
-        inputQueueDisplay = findViewById(R.id.inputQueueDisplay);
-        addInputBtn = findViewById(R.id.addInputBtn);
-        clearAllInputBtn = findViewById(R.id.clearAllInputBtn);
+        // Input section components
+        inputSection = findViewById(R.id.inputSection);
+        inputField = findViewById(R.id.inputField);
+        showInputBtn = findViewById(R.id.showInputBtn);
+        clearConsoleBtn = findViewById(R.id.clearConsoleBtn);
+        closeInputBtn = findViewById(R.id.closeInputBtn);
 
+        // WebView for HTML/CSS/JS
         webView = new WebView(this);
         webView.setVisibility(View.GONE);
     }
@@ -143,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
     private void setupToolbar() {
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle("PocketCode IDE");
+            getSupportActionBar().setTitle("PocketCode");
             getSupportActionBar().setDisplayShowTitleEnabled(true);
         }
     }
@@ -158,9 +141,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 currentLanguage = supportedLanguages[position];
-                updateStatusText("Language changed to " + currentLanguage);
+                updateStatusText("Language: " + currentLanguage);
                 updateSampleCode();
-                showInputInstructions();
             }
 
             @Override
@@ -234,144 +216,53 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupEventListeners() {
-        // Original event listeners
         newFileBtn.setOnClickListener(v -> createNewFile());
         openBtn.setOnClickListener(v -> openFileLauncher.launch("*/*"));
         saveBtn.setOnClickListener(v -> saveFileLauncher.launch(currentFileName + getFileExtension()));
-        formatBtn.setOnClickListener(v -> formatCode());
         runBtn.setOnClickListener(v -> executeCode());
-        stopBtn.setOnClickListener(v -> stopExecution());
 
-        // New enhanced input handling listeners
-        addInputBtn.setOnClickListener(v -> addInputToQueue());
-        clearAllInputBtn.setOnClickListener(v -> clearInputQueue());
-
-        // Allow Enter key to add input
-        currentInputField.setOnKeyListener((v, keyCode, event) -> {
-            if (event.getAction() == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
-                addInputToQueue();
-                return true;
-            }
-            return false;
-        });
-
-        // Keep legacy terminal input for backward compatibility
-        terminalInput.setOnKeyListener((v, keyCode, event) -> {
-            if (event.getAction() == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
-                if (isWaitingForInput && currentExecutor != null) {
-                    String input = terminalInput.getText().toString();
-                    terminalInput.setText("");
-                    appendToConsole(input);
-                    currentExecutor.provideInput(input);
-                    isWaitingForInput = false;
-                }
-                return true;
-            }
-            return false;
-        });
+        // Input section controls
+        showInputBtn.setOnClickListener(v -> toggleInputSection());
+        clearConsoleBtn.setOnClickListener(v -> clearConsole());
+        closeInputBtn.setOnClickListener(v -> hideInputSection());
     }
 
-    // New enhanced input handling methods
-    private void addInputToQueue() {
-        String input = currentInputField.getText().toString();
-        if (!input.trim().isEmpty()) {
-            inputQueue.add(input);
-            currentInputField.setText("");
-            updateInputQueueDisplay();
-            updateStatusText("Added input: " + input);
-        }
-    }
-
-    private void clearInputQueue() {
-        inputQueue.clear();
-        updateInputQueueDisplay();
-        updateStatusText("Input queue cleared");
-    }
-
-    private void updateInputQueueDisplay() {
-        if (inputQueue.isEmpty()) {
-            inputQueueDisplay.setText("(No inputs added yet)\n\nTip: For programs that need multiple inputs,\nadd them one by one before clicking RUN");
+    private void toggleInputSection() {
+        if (inputSection.getVisibility() == View.GONE) {
+            inputSection.setVisibility(View.VISIBLE);
+            updateStatusText("Input section opened");
         } else {
-            StringBuilder display = new StringBuilder("Input Queue (" + inputQueue.size() + " items):\n\n");
-            for (int i = 0; i < inputQueue.size(); i++) {
-                display.append((i + 1)).append(". ").append(inputQueue.get(i)).append("\n");
-            }
-            display.append("\nThese will be sent to your program in order.");
-            inputQueueDisplay.setText(display.toString());
+            inputSection.setVisibility(View.GONE);
+            updateStatusText("Input section closed");
         }
     }
 
-    private void showInputInstructions() {
-        String instructions = getInputInstructionsForLanguage(currentLanguage);
-        appendToConsole(instructions);
+    private void hideInputSection() {
+        inputSection.setVisibility(View.GONE);
+        updateStatusText("Input section closed");
     }
 
-    private String getInputInstructionsForLanguage(String language) {
-        switch (language) {
-            case "Java":
-                return "Input Instructions:\n" +
-                        "- For Scanner.nextLine(): Add each line as separate input\n" +
-                        "- For Scanner.nextInt(): Add numbers as separate inputs\n" +
-                        "- For Scanner.next(): Add words as separate inputs\n";
-            case "Python":
-                return "Input Instructions:\n" +
-                        "- For input(): Add each input as separate line\n" +
-                        "- For int(input()): Add numbers as separate inputs\n";
-            case "C":
-            case "C++":
-                return "Input Instructions:\n" +
-                        "- For scanf(\"%s\"): Add strings as separate inputs\n" +
-                        "- For scanf(\"%d\"): Add numbers as separate inputs\n" +
-                        "- For getline(): Add full lines as separate inputs\n";
-            default:
-                return "Add inputs that your program will request, one per line.";
-        }
-    }
-
-    // Console and utility methods
+    // Console methods
     private void appendToConsole(String text) {
         runOnUiThread(() -> {
             consoleOutput.append(text).append("\n");
             outputConsole.setText(consoleOutput.toString());
-            // Auto-scroll to bottom
-            outputConsole.post(() -> {
-                if (outputConsole.getLayout() != null) {
-                    int scrollY = outputConsole.getLayout().getLineTop(outputConsole.getLineCount()) - outputConsole.getHeight();
-                    if (scrollY > 0) {
-                        outputConsole.scrollTo(0, scrollY);
-                    }
-                }
-            });
         });
     }
 
     private void clearConsole() {
         consoleOutput.setLength(0);
-        outputConsole.setText("");
-    }
-
-    private void showInputField() {
-        runOnUiThread(() -> {
-            terminalInput.setVisibility(View.VISIBLE);
-            terminalInput.requestFocus();
-            isWaitingForInput = true;
-        });
-    }
-
-    private void hideInputField() {
-        runOnUiThread(() -> {
-            terminalInput.setVisibility(View.GONE);
-            isWaitingForInput = false;
-        });
+        outputConsole.setText("Console cleared.\n\nReady to run code...");
+        updateStatusText("Console cleared");
     }
 
     // File operations
     private void createNewFile() {
-        if (isExecuting) stopExecution();
+        if (isExecuting) return;
         codeEditor.setText("");
         currentFileName = "Untitled";
         clearConsole();
-        clearInputQueue(); // Clear input queue on new file
+        hideInputSection();
         updateStatusText("New file created");
         updateUI();
     }
@@ -424,43 +315,35 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void formatCode() {
-        String code = codeEditor.getText().toString();
-        String formattedCode = performBasicFormatting(code);
-        codeEditor.setText(formattedCode);
-        updateStatusText("Code formatted");
-        Toast.makeText(this, "Code formatted", Toast.LENGTH_SHORT).show();
-    }
-
-    // Updated executeCode method with enhanced input handling
     private void executeCode() {
         if (isExecuting) return;
 
         showProgress(true);
         isExecuting = true;
         runBtn.setEnabled(false);
-        stopBtn.setEnabled(true);
 
         clearConsole();
         String code = codeEditor.getText().toString();
 
         if (code.trim().isEmpty()) {
             appendToConsole("Error: No code to execute");
-            showProgress(false);
             resetExecutionState();
             return;
         }
 
-        // Prepare input string from queue
-        StringBuilder inputString = new StringBuilder();
-        for (String input : inputQueue) {
-            inputString.append(input).append("\n");
+        // Get input from input field if available
+        String input = "";
+        if (inputField.getText() != null && !inputField.getText().toString().trim().isEmpty()) {
+            input = inputField.getText().toString();
+            appendToConsole("Using provided input:");
+            String[] inputLines = input.split("\n");
+            for (String line : inputLines) {
+                appendToConsole("  > " + line);
+            }
+            appendToConsole("");
         }
 
         appendToConsole("=== " + currentLanguage + " Execution Started ===");
-        if (!inputQueue.isEmpty()) {
-            appendToConsole("Using " + inputQueue.size() + " pre-defined inputs");
-        }
         updateStatusText("Executing " + currentLanguage + " code...");
 
         // Route execution based on language
@@ -475,16 +358,15 @@ public class MainActivity extends AppCompatActivity {
                 if (code.contains("console.log") || code.contains("document.")) {
                     executeJavaScript(code);
                 } else {
-                    executeWithAPI(code, inputString.toString());
+                    executeWithAPI(code, input);
                 }
                 break;
             default:
-                executeWithAPI(code, inputString.toString());
+                executeWithAPI(code, input);
                 break;
         }
     }
 
-    // New method for API execution with input
     private void executeWithAPI(String code, String input) {
         codeExecutionAPI.executeWithPiston(code, currentLanguage, new CodeExecutionCallback() {
             @Override
@@ -507,56 +389,10 @@ public class MainActivity extends AppCompatActivity {
         }, input);
     }
 
-    private void startInteractiveExecution(String code) {
-        currentExecutor = new InteractiveExecutor(code, currentLanguage, new ExecutionCallback() {
-            @Override
-            public void onOutput(String output) {
-                appendToConsole(output);
-            }
-
-            @Override
-            public void onError(String error) {
-                appendToConsole("ERROR: " + error);
-                resetExecutionState();
-            }
-
-            @Override
-            public void onInputRequired() {
-                runOnUiThread(() -> {
-                    appendToConsole("Waiting for input...");
-                    showInputField();
-                });
-            }
-
-            @Override
-            public void onComplete() {
-                runOnUiThread(() -> {
-                    appendToConsole("=== Execution Completed ===");
-                    resetExecutionState();
-                });
-            }
-        });
-
-        currentExecutor.execute();
-    }
-
-    private void stopExecution() {
-        if (currentExecutor != null) {
-            currentExecutor.stop();
-            currentExecutor = null;
-        }
-        resetExecutionState();
-        appendToConsole("\n=== Execution Stopped ===");
-    }
-
-    // Updated resetExecutionState method
     private void resetExecutionState() {
         runOnUiThread(() -> {
             isExecuting = false;
             runBtn.setEnabled(true);
-            stopBtn.setEnabled(false);
-            hideInputField();
-            // Keep input queue intact for reuse
             showProgress(false);
             updateStatusText("Ready");
         });
@@ -604,14 +440,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Helper methods
-    private String performBasicFormatting(String code) {
-        return code.replaceAll("\\{", " {\n")
-                .replaceAll("\\}", "}\n")
-                .replaceAll(";", ";\n")
-                .replaceAll("\\n\\s*\\n", "\n")
-                .trim();
-    }
-
     private void updateLineNumbers() {
         String text = codeEditor.getText().toString();
         int lines = text.split("\n").length;
@@ -628,7 +456,7 @@ public class MainActivity extends AppCompatActivity {
         String[] lines = textBeforeCursor.split("\n");
         int lineNumber = lines.length;
         int columnNumber = lines[lines.length - 1].length() + 1;
-        cursorPositionText.setText(String.format("Ln %d, Col %d", lineNumber, columnNumber));
+        cursorPositionText.setText(String.format("Line %d, Column %d", lineNumber, columnNumber));
     }
 
     private void updateSampleCode() {
@@ -638,66 +466,68 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // Updated sample code with input examples
     private String getSampleCode(String language) {
         switch (language) {
             case "Java":
-                return "import java.util.Scanner;\n\n" +
-                        "public class Main {\n" +
+                return "public class Main {\n" +
                         "    public static void main(String[] args) {\n" +
-                        "        Scanner scanner = new Scanner(System.in);\n" +
-                        "        \n" +
-                        "        System.out.print(\"Enter your name: \");\n" +
-                        "        String name = scanner.nextLine();\n" +
-                        "        \n" +
-                        "        System.out.print(\"Enter your age: \");\n" +
-                        "        int age = scanner.nextInt();\n" +
-                        "        \n" +
-                        "        System.out.println(\"Hello \" + name + \", you are \" + age + \" years old!\");\n" +
-                        "        \n" +
-                        "        scanner.close();\n" +
+                        "        System.out.println(\"Hello, World!\");\n" +
+                        "        // Add your code here\n" +
                         "    }\n" +
-                        "}\n\n" +
-                        "// Pre-add inputs: Your Name, 25";
+                        "}";
 
             case "Python":
-                return "# Interactive Python Example\n" +
-                        "print(\"=== Python Interactive Demo ===\")\n" +
-                        "name = input(\"Enter your name: \")\n" +
-                        "age = int(input(\"Enter your age: \"))\n" +
-                        "city = input(\"Enter your city: \")\n\n" +
-                        "print(f\"Hello {name}!\")\n" +
-                        "print(f\"You are {age} years old and live in {city}\")\n\n" +
-                        "# Count example\n" +
-                        "count = int(input(\"How many times to count? \"))\n" +
-                        "for i in range(count):\n" +
-                        "    print(f\"Count: {i + 1}\")\n\n" +
-                        "print(\"Program completed!\")\n\n" +
-                        "# Pre-add inputs: Your Name, 25, Your City, 3";
+                return "# Python Sample Code\n" +
+                        "print(\"Hello, World!\")\n" +
+                        "# Add your code here";
+
+            case "JavaScript":
+                return "// JavaScript Sample Code\n" +
+                        "console.log(\"Hello, World!\");\n" +
+                        "// Add your code here";
 
             case "C":
                 return "#include <stdio.h>\n\n" +
                         "int main() {\n" +
-                        "    char name[100];\n" +
-                        "    int age;\n" +
-                        "    \n" +
-                        "    printf(\"Enter your name: \");\n" +
-                        "    scanf(\"%s\", name);\n" +
-                        "    \n" +
-                        "    printf(\"Enter your age: \");\n" +
-                        "    scanf(\"%d\", &age);\n" +
-                        "    \n" +
-                        "    printf(\"Hello %s, you are %d years old!\\n\", name, age);\n" +
-                        "    \n" +
+                        "    printf(\"Hello, World!\\n\");\n" +
                         "    return 0;\n" +
+                        "}";
+
+            case "C++":
+                return "#include <iostream>\n" +
+                        "using namespace std;\n\n" +
+                        "int main() {\n" +
+                        "    cout << \"Hello, World!\" << endl;\n" +
+                        "    return 0;\n" +
+                        "}";
+
+            case "HTML":
+                return "<!DOCTYPE html>\n" +
+                        "<html>\n" +
+                        "<head>\n" +
+                        "    <title>My Page</title>\n" +
+                        "</head>\n" +
+                        "<body>\n" +
+                        "    <h1>Hello, World!</h1>\n" +
+                        "    <p>Welcome to my webpage!</p>\n" +
+                        "</body>\n" +
+                        "</html>";
+
+            case "CSS":
+                return "/* CSS Sample Code */\n" +
+                        "body {\n" +
+                        "    font-family: Arial, sans-serif;\n" +
+                        "    background-color: #f0f0f0;\n" +
+                        "    margin: 20px;\n" +
                         "}\n\n" +
-                        "/* Pre-add inputs: YourName, 25 */";
+                        "h1 {\n" +
+                        "    color: #333;\n" +
+                        "    text-align: center;\n" +
+                        "}";
 
             default:
                 return "// " + language + " Sample Code\n" +
-                        "// Add any required inputs in the input queue below\n" +
-                        "// before running the code\n\n" +
-                        "console.log('Hello World!');";
+                        "// Add your code here";
         }
     }
 
@@ -728,86 +558,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateUI() {
-        fileNameText.setText("File: " + currentFileName + getFileExtension());
-        encodingText.setText("UTF-8");
-        Runtime runtime = Runtime.getRuntime();
-        long usedMemory = runtime.totalMemory() - runtime.freeMemory();
-        memoryUsage.setText(String.format("Memory: %dMB", usedMemory / (1024 * 1024)));
+        fileNameText.setText(currentFileName + getFileExtension());
         updateLineNumbers();
         updateCursorPosition();
-        updateInputQueueDisplay();
     }
 
-    // Interactive Executor Class
-    private class InteractiveExecutor {
-        private String code;
-        private String language;
-        private ExecutionCallback callback;
-        private BlockingQueue<String> inputQueue;
-        private boolean isRunning = false;
-        private Thread executionThread;
-
-        public InteractiveExecutor(String code, String language, ExecutionCallback callback) {
-            this.code = code;
-            this.language = language;
-            this.callback = callback;
-            this.inputQueue = new LinkedBlockingQueue<>();
-        }
-
-        public void execute() {
-            isRunning = true;
-            executionThread = new Thread(() -> {
-                try {
-                    executeWithPistonInteractive();
-                } catch (Exception e) {
-                    if (isRunning) {
-                        callback.onError(e.getMessage());
-                    }
-                }
-            });
-            executionThread.start();
-        }
-
-        private void executeWithPistonInteractive() {
-            codeExecutionAPI.executeWithPiston(code, language, new CodeExecutionCallback() {
-                @Override
-                public void onSuccess(String output) {
-                    if (isRunning) {
-                        callback.onOutput(output);
-                        callback.onComplete();
-                    }
-                }
-
-                @Override
-                public void onError(String error) {
-                    if (isRunning) {
-                        callback.onError(error);
-                    }
-                }
-            }, getAllQueuedInput());
-        }
-
-        private String getAllQueuedInput() {
-            StringBuilder allInput = new StringBuilder();
-            while (!inputQueue.isEmpty()) {
-                allInput.append(inputQueue.poll()).append("\n");
-            }
-            return allInput.toString();
-        }
-
-        public void provideInput(String input) {
-            inputQueue.offer(input);
-        }
-
-        public void stop() {
-            isRunning = false;
-            if (executionThread != null && executionThread.isAlive()) {
-                executionThread.interrupt();
-            }
-        }
-    }
-
-    // API class
+    // API class for code execution
     private class CodeExecutionAPI {
         private static final String PISTON_BASE_URL = "https://emkc.org/api/v2/piston";
 
@@ -891,16 +647,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // Interfaces
+    // Interface for code execution callback
     interface CodeExecutionCallback {
         void onSuccess(String output);
         void onError(String error);
-    }
-
-    interface ExecutionCallback {
-        void onOutput(String output);
-        void onError(String error);
-        void onInputRequired();
-        void onComplete();
     }
 }

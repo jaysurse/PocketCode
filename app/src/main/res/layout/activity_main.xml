@@ -1,77 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/ide_background">
 
-    <!-- Main Toolbar -->
+    <!-- Clean Toolbar -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
+        android:layout_height="56dp"
         android:background="@color/toolbar_background"
-        android:elevation="4dp"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
+        android:elevation="4dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:paddingEnd="16dp">
 
-            <!-- File Operations -->
+            <!-- Essential Actions Only -->
             <ImageButton
                 android:id="@+id/newFileBtn"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="New File"
-                android:padding="8dp"
+                android:contentDescription="New"
                 android:src="@android:drawable/ic_menu_add"
                 android:tint="@color/text_primary" />
 
             <ImageButton
                 android:id="@+id/openBtn"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Open File"
-                android:padding="8dp"
-                android:src="@android:drawable/ic_menu_more"
+                android:contentDescription="Open"
+                android:src="@android:drawable/ic_menu_upload"
                 android:tint="@color/text_primary" />
 
             <ImageButton
                 android:id="@+id/saveBtn"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Save File"
-                android:padding="8dp"
+                android:contentDescription="Save"
                 android:src="@android:drawable/ic_menu_save"
                 android:tint="@color/text_primary" />
 
-            <!-- Language Selection -->
+            <!-- Language Selector -->
             <Spinner
                 android:id="@+id/langSpinner"
-                android:layout_width="100dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:popupBackground="@color/editor_background" />
-
-            <!-- Format Button -->
-            <ImageButton
-                android:id="@+id/formatBtn"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Format Code"
-                android:padding="8dp"
-                android:src="@android:drawable/ic_menu_edit"
-                android:tint="@color/text_primary" />
+                android:layout_width="120dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="8dp" />
 
             <!-- Spacer -->
             <View
@@ -79,69 +63,29 @@
                 android:layout_height="1dp"
                 android:layout_weight="1" />
 
-            <!-- Undo/Redo Buttons (if needed later) -->
-            <ImageButton
-                android:id="@+id/undoBtn"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Undo"
-                android:padding="8dp"
-                android:src="@android:drawable/ic_menu_revert"
-                android:tint="@color/text_primary"
-                android:visibility="gone" />
-
-            <ImageButton
-                android:id="@+id/redoBtn"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Redo"
-                android:padding="8dp"
-                android:src="@android:drawable/ic_menu_recent_history"
-                android:tint="@color/text_primary"
-                android:visibility="gone" />
-
-            <!-- Run and Stop Buttons -->
+            <!-- Run Button -->
             <Button
                 android:id="@+id/runBtn"
                 android:layout_width="wrap_content"
-                android:layout_height="32dp"
-                android:layout_marginEnd="4dp"
-                android:backgroundTint="@color/accent"
-                android:text="▶ RUN"
+                android:layout_height="36dp"
+                android:background="@android:color/holo_green_dark"
+                android:text="▶ Run"
                 android:textColor="@android:color/white"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                android:paddingStart="12dp"
-                android:paddingEnd="12dp"
-                android:minWidth="60dp" />
-
-            <Button
-                android:id="@+id/stopBtn"
-                android:layout_width="wrap_content"
-                android:layout_height="32dp"
-                android:layout_marginEnd="8dp"
-                android:backgroundTint="@color/warning"
-                android:text="⏹ STOP"
-                android:textColor="@android:color/white"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                android:paddingStart="12dp"
-                android:paddingEnd="12dp"
-                android:minWidth="60dp"
-                android:enabled="false" />
+                android:textSize="14sp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp" />
 
         </LinearLayout>
     </androidx.appcompat.widget.Toolbar>
 
-    <!-- Secondary Toolbar with File Info -->
+    <!-- File Info Bar -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/secondary_toolbar_background"
+        android:layout_height="32dp"
+        android:background="@color/secondary_background"
         android:orientation="horizontal"
-        android:padding="6dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
         android:gravity="center_vertical">
 
         <TextView
@@ -149,359 +93,197 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="File: Untitled.java"
+            android:text="Untitled.java"
             android:textColor="@color/text_secondary"
-            android:textSize="11sp"
-            android:maxLines="1"
-            android:ellipsize="middle" />
+            android:textSize="12sp" />
 
         <TextView
             android:id="@+id/cursorPositionText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Ln 1, Col 1"
+            android:text="Line 1, Column 1"
             android:textColor="@color/text_secondary"
-            android:textSize="11sp"
-            android:layout_marginStart="8dp" />
-
-        <TextView
-            android:id="@+id/encodingText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="UTF-8"
-            android:textColor="@color/text_secondary"
-            android:textSize="11sp"
-            android:layout_marginStart="8dp" />
+            android:textSize="12sp" />
 
     </LinearLayout>
 
-    <!-- File Tabs (Optional for future use) -->
-    <HorizontalScrollView
-        android:id="@+id/tabScrollView"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:background="@color/tab_background"
-        android:scrollbars="none"
-        android:visibility="gone">
-
-        <LinearLayout
-            android:id="@+id/tabContainer"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:orientation="horizontal" />
-
-    </HorizontalScrollView>
-
-    <!-- Main Content Area -->
+    <!-- Main Content Container -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:orientation="horizontal">
+        android:orientation="vertical">
 
-        <!-- File Explorer Panel (Optional for future use) -->
+        <!-- Code Editor Section -->
         <LinearLayout
-            android:id="@+id/fileExplorerPanel"
-            android:layout_width="200dp"
-            android:layout_height="match_parent"
-            android:background="@color/panel_background"
-            android:orientation="vertical"
-            android:visibility="gone">
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:background="@color/editor_background">
 
+            <!-- Line Numbers -->
             <TextView
-                android:layout_width="match_parent"
-                android:layout_height="32dp"
-                android:background="@color/panel_header_background"
-                android:gravity="center_vertical"
-                android:paddingStart="12dp"
-                android:paddingEnd="12dp"
-                android:text="Files"
-                android:textColor="@color/text_primary"
-                android:textSize="14sp"
-                android:textStyle="bold" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/fileExplorerRecyclerView"
-                android:layout_width="match_parent"
+                android:id="@+id/lineNumbers"
+                android:layout_width="48dp"
                 android:layout_height="match_parent"
-                android:padding="4dp" />
+                android:background="@color/line_number_background"
+                android:fontFamily="monospace"
+                android:gravity="end|top"
+                android:padding="8dp"
+                android:text="1\n2\n3\n4\n5"
+                android:textColor="@color/line_number_text"
+                android:textSize="12sp" />
+
+            <!-- Editor -->
+            <ScrollView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
+
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <EditText
+                        android:id="@+id/codeEditor"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@android:color/transparent"
+                        android:fontFamily="monospace"
+                        android:gravity="top|start"
+                        android:hint="Write your code here..."
+                        android:inputType="textMultiLine|textNoSuggestions"
+                        android:minWidth="300dp"
+                        android:padding="12dp"
+                        android:scrollbars="none"
+                        android:textColor="@color/text_primary"
+                        android:textColorHint="@color/text_secondary"
+                        android:textSize="14sp" />
+
+                </HorizontalScrollView>
+            </ScrollView>
 
         </LinearLayout>
 
-        <!-- Code Editor Area -->
+        <!-- Input Section (Collapsible) -->
         <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
+            android:id="@+id/inputSection"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/input_background"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <!-- Input Header -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:background="@color/input_header_background"
+                android:gravity="center_vertical"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Program Input"
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <ImageButton
+                    android:id="@+id/closeInputBtn"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@android:drawable/ic_menu_close_clear_cancel"
+                    android:tint="@color/text_secondary" />
+
+            </LinearLayout>
+
+            <!-- Input Field -->
+            <EditText
+                android:id="@+id/inputField"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:layout_margin="12dp"
+                android:background="@android:drawable/edit_text"
+                android:fontFamily="monospace"
+                android:gravity="top|start"
+                android:hint="Enter input values (one per line)"
+                android:inputType="textMultiLine"
+                android:padding="12dp"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_secondary"
+                android:textSize="13sp" />
+
+        </LinearLayout>
+
+        <!-- Output Console -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:background="@color/console_background"
             android:orientation="vertical">
 
-            <!-- Code Editor Container with CardView -->
-            <androidx.cardview.widget.CardView
+            <!-- Console Header -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:background="@color/console_header_background"
+                android:gravity="center_vertical"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Output"
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <ImageButton
+                    android:id="@+id/showInputBtn"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Show Input"
+                    android:src="@android:drawable/ic_menu_edit"
+                    android:tint="@color/text_secondary" />
+
+                <ImageButton
+                    android:id="@+id/clearConsoleBtn"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Clear"
+                    android:src="@android:drawable/ic_menu_close_clear_cancel"
+                    android:tint="@color/text_secondary" />
+
+            </LinearLayout>
+
+            <!-- Console Output -->
+            <ScrollView
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
-                android:layout_margin="4dp"
-                app:cardBackgroundColor="@color/editor_background"
-                app:cardCornerRadius="8dp"
-                app:cardElevation="2dp">
+                android:padding="12dp">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal">
-
-                    <!-- Line Numbers -->
-                    <TextView
-                        android:id="@+id/lineNumbers"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:background="@color/line_number_background"
-                        android:fontFamily="monospace"
-                        android:padding="6dp"
-                        android:text="1\n2\n3\n4\n5"
-                        android:textColor="@color/line_number_text"
-                        android:textSize="11sp"
-                        android:gravity="end|top"
-                        android:minWidth="35dp" />
-
-                    <!-- Divider -->
-                    <View
-                        android:layout_width="1dp"
-                        android:layout_height="match_parent"
-                        android:background="@color/divider_color" />
-
-                    <!-- Code Editor with Scrolling -->
-                    <ScrollView
-                        android:id="@+id/codeScrollView"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:background="@android:color/transparent">
-
-                        <HorizontalScrollView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content">
-
-                            <EditText
-                                android:id="@+id/codeEditor"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:background="@android:color/transparent"
-                                android:fontFamily="monospace"
-                                android:gravity="top|start"
-                                android:hint="Start coding here...\n\nTips:\n• Select language from dropdown\n• Add input in terminal below if needed\n• Click RUN to execute\n• Use Format button to organize code\n\nHappy coding!"
-                                android:inputType="textMultiLine|textNoSuggestions"
-                                android:minWidth="300dp"
-                                android:padding="6dp"
-                                android:scrollbars="none"
-                                android:textColor="@color/text_primary"
-                                android:textColorHint="@color/text_secondary"
-                                android:textSize="13sp"
-                                android:textIsSelectable="true" />
-
-                        </HorizontalScrollView>
-                    </ScrollView>
-
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
-            <!-- Enhanced Input Terminal Section with Pre-execution Input -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/input_terminal_background"
-                android:orientation="vertical"
-                android:padding="6dp">
-
-                <!-- Terminal Header with Instructions -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:padding="4dp">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Program Input (Provide ALL inputs before running)"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
-
-                    <Button
-                        android:id="@+id/addInputBtn"
-                        android:layout_width="wrap_content"
-                        android:layout_height="28dp"
-                        android:layout_marginEnd="4dp"
-                        android:backgroundTint="@color/success"
-                        android:text="ADD LINE"
-                        android:textColor="@android:color/white"
-                        android:textSize="10sp"
-                        android:paddingStart="8dp"
-                        android:paddingEnd="8dp" />
-
-                    <Button
-                        android:id="@+id/clearAllInputBtn"
-                        android:layout_width="wrap_content"
-                        android:layout_height="28dp"
-                        android:backgroundTint="@color/warning"
-                        android:text="CLEAR ALL"
-                        android:textColor="@android:color/white"
-                        android:textSize="10sp"
-                        android:paddingStart="8dp"
-                        android:paddingEnd="8dp" />
-
-                </LinearLayout>
-
-                <!-- Current Input Field -->
-                <EditText
-                    android:id="@+id/currentInputField"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/input_terminal_background"
-                    android:fontFamily="monospace"
-                    android:hint="Type next input value and press ADD LINE..."
-                    android:inputType="text"
-                    android:padding="8dp"
-                    android:textColor="@color/text_primary"
-                    android:textColorHint="@color/hint_text"
-                    android:textSize="12sp" />
-
-                <!-- Input Queue Display -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_marginTop="4dp">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Input Queue (will be sent in order):"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="11sp"
-                        android:textStyle="bold"
-                        android:paddingBottom="2dp" />
-
-                    <ScrollView
-                        android:layout_width="match_parent"
-                        android:layout_height="80dp"
-                        android:background="@drawable/input_queue_background">
-
-                        <TextView
-                            android:id="@+id/inputQueueDisplay"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="monospace"
-                            android:padding="6dp"
-                            android:text="(No inputs added yet)\n\nTip: For programs that need multiple inputs,\nadd them one by one before clicking RUN"
-                            android:textColor="@color/console_text"
-                            android:textSize="11sp" />
-
-                    </ScrollView>
-
-                </LinearLayout>
-
-                <!-- Input Instructions -->
                 <TextView
+                    android:id="@+id/outputConsole"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="How to use: Add all program inputs here BEFORE running code. Each line will be sent when your program asks for input."
-                    android:textColor="@color/info"
-                    android:textSize="10sp"
-                    android:layout_marginTop="4dp"
-                    android:padding="4dp"
-                    android:background="@drawable/info_background" />
-
-                <!-- Keep the old terminal input field for backward compatibility (hidden by default) -->
-                <EditText
-                    android:id="@+id/terminalInput"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/input_terminal_background"
                     android:fontFamily="monospace"
-                    android:hint="Legacy input field..."
-                    android:inputType="text"
-                    android:maxLines="3"
-                    android:padding="8dp"
-                    android:textColor="@color/text_primary"
-                    android:textColorHint="@color/text_secondary"
-                    android:textSize="12sp"
-                    android:visibility="gone" />
+                    android:text="Ready to run code...\n\nSelect a language and write your code above."
+                    android:textColor="@color/console_text"
+                    android:textSize="13sp"
+                    android:textIsSelectable="true" />
 
-            </LinearLayout>
-
-            <!-- Console Output Panel -->
-            <LinearLayout
-                android:id="@+id/bottomPanel"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/console_background"
-                android:orientation="vertical"
-                android:padding="4dp">
-
-                <!-- Console Header -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="32dp"
-                    android:background="@color/console_header_background"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:paddingStart="12dp"
-                        android:text="Console Output"
-                        android:textColor="@color/text_primary"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
-
-                    <ImageButton
-                        android:id="@+id/clearConsoleBtn"
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:contentDescription="Clear Console"
-                        android:padding="4dp"
-                        android:src="@android:drawable/ic_menu_close_clear_cancel"
-                        android:tint="@color/text_secondary" />
-
-                    <ImageButton
-                        android:id="@+id/toggleConsoleBtn"
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
-                        android:layout_marginEnd="4dp"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:contentDescription="Toggle Console"
-                        android:padding="4dp"
-                        android:src="@android:drawable/arrow_down_float"
-                        android:tint="@color/text_secondary" />
-
-                </LinearLayout>
-
-                <!-- Console Output -->
-                <ScrollView
-                    android:layout_width="match_parent"
-                    android:layout_height="140dp">
-
-                    <TextView
-                        android:id="@+id/outputConsole"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="monospace"
-                        android:padding="6dp"
-                        android:text="Welcome to PocketCode!\n\nYour code execution results will appear here...\n\nQuick Start:\n1. Choose programming language\n2. Write or paste your code\n3. Program will prompt for input if needed\n4. Hit RUN button\n5. See output here!\n\nHappy coding!"
-                        android:textColor="@color/console_text"
-                        android:textSize="12sp"
-                        android:textIsSelectable="true" />
-
-                </ScrollView>
-
-            </LinearLayout>
+            </ScrollView>
 
         </LinearLayout>
 
@@ -509,13 +291,12 @@
 
     <!-- Status Bar -->
     <LinearLayout
-        android:id="@+id/statusBar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/status_bar_background"
-        android:orientation="horizontal"
-        android:padding="4dp"
-        android:gravity="center_vertical">
+        android:layout_height="28dp"
+        android:background="@color/status_background"
+        android:gravity="center_vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp">
 
         <TextView
             android:id="@+id/statusText"
@@ -524,34 +305,13 @@
             android:layout_weight="1"
             android:text="Ready"
             android:textColor="@color/text_secondary"
-            android:textSize="10sp"
-            android:padding="2dp" />
+            android:textSize="11sp" />
 
         <ProgressBar
             android:id="@+id/progressBar"
             style="?android:attr/progressBarStyleSmall"
-            android:layout_width="14dp"
-            android:layout_height="14dp"
-            android:visibility="gone"
-            android:layout_marginEnd="6dp" />
-
-        <TextView
-            android:id="@+id/memoryUsage"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Memory: 45MB"
-            android:textColor="@color/text_secondary"
-            android:textSize="10sp"
-            android:padding="2dp" />
-
-        <TextView
-            android:id="@+id/cursorPosition"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Ln 1, Col 1"
-            android:textColor="@color/text_secondary"
-            android:textSize="10sp"
-            android:padding="2dp"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
             android:visibility="gone" />
 
     </LinearLayout>

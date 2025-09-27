@@ -116,4 +116,155 @@
     <color name="xml_file">#FFFF6600</color>
     <color name="json_file">#FF000000</color>
     <color name="text_file">#FFCCCCCC</color>
+    <!-- Basic Palette -->
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="secondary_background">#FF313335</color>
+    <color name="input_header_background">#FF313335</color>
+    <color name="status_background">#FF3C3F41</color>
+
+
+    <!-- App-Specific Theme Colors -->
+    <!-- You can change these hex codes to your preferred colors -->
+
+    <!-- Backgrounds -->
+    <!-- <color name="ide_background">#FF2B2B2B</color> -->
+
+    <!-- <color name="toolbar_background">#FF3C3F41</color> -->
+
+    <!-- <color name="editor_background">#FF2B2B2B</color> -->
+
+    <!-- <color name="line_number_background">#FF313335</color> -->
+
+    <!-- <color name="input_background">#FF3C3F41</color> -->
+
+    <!-- <color name="console_background">#FF2B2B2B</color> -->
+
+    <!-- <color name="console_header_background">#FF3C3F41</color> -->
+
+
+    <!-- Text -->
+    <!-- <color name="text_primary">#FFBBBBBB</color> -->
+
+    <!-- <color name="text_secondary">#FF888888</color> -->
+
+    <!-- <color name="line_number_text">#FF606366</color> -->
+
+    <!-- <color name="console_text">#FFBBBBBB</color> -->
+
+
+    <!-- App-Specific Theme Colors -->
+    <!-- You can change these hex codes to your preferred colors -->
+
+    <!-- Backgrounds -->
+    <!-- <color name="ide_background">#FF2B2B2B</color> -->
+
+    <!-- <color name="toolbar_background">#FF3C3F41</color> -->
+
+    <!-- <color name="editor_background">#FF2B2B2B</color> -->
+
+    <!-- <color name="line_number_background">#FF313335</color> -->
+
+    <!-- <color name="input_background">#FF3C3F41</color> -->
+
+    <!-- <color name="console_background">#FF2B2B2B</color> -->
+
+    <!-- <color name="console_header_background">#FF3C3F41</color> -->
+
+
+    <!-- Text -->
+    <!-- <color name="text_primary">#FFBBBBBB</color> -->
+
+    <!-- <color name="text_secondary">#FF888888</color> -->
+
+    <!-- <color name="line_number_text">#FF606366</color> -->
+
+    <!-- <color name="console_text">#FFBBBBBB</color> -->
+
+
+    <!-- App-Specific Theme Colors -->
+    <!-- You can change these hex codes to your preferred colors -->
+
+    <!-- Backgrounds -->
+    <!-- <color name="ide_background">#FF2B2B2B</color> -->
+
+    <!-- <color name="toolbar_background">#FF3C3F41</color> -->
+
+    <!-- <color name="editor_background">#FF2B2B2B</color> -->
+
+    <!-- <color name="line_number_background">#FF313335</color> -->
+
+    <!-- <color name="input_background">#FF3C3F41</color> -->
+
+    <!-- <color name="console_background">#FF2B2B2B</color> -->
+
+    <!-- <color name="console_header_background">#FF3C3F41</color> -->
+
+
+    <!-- Text -->
+    <!-- <color name="text_primary">#FFBBBBBB</color> -->
+
+    <!-- <color name="text_secondary">#FF888888</color> -->
+
+    <!-- <color name="line_number_text">#FF606366</color> -->
+
+    <!-- <color name="console_text">#FFBBBBBB</color> -->
+
+
+    <!-- App-Specific Theme Colors -->
+    <!-- You can change these hex codes to your preferred colors -->
+
+    <!-- Backgrounds -->
+    <!-- <color name="ide_background">#FF2B2B2B</color> -->
+
+    <!-- <color name="toolbar_background">#FF3C3F41</color> -->
+
+    <!-- <color name="editor_background">#FF2B2B2B</color> -->
+
+    <!-- <color name="line_number_background">#FF313335</color> -->
+
+    <!-- <color name="input_background">#FF3C3F41</color> -->
+
+    <!-- <color name="console_background">#FF2B2B2B</color> -->
+
+    <!-- <color name="console_header_background">#FF3C3F41</color> -->
+
+
+    <!-- Text -->
+    <!-- <color name="text_primary">#FFBBBBBB</color> -->
+
+    <!-- <color name="text_secondary">#FF888888</color> -->
+
+    <!-- <color name="line_number_text">#FF606366</color> -->
+
+    <!-- <color name="console_text">#FFBBBBBB</color> -->
+
+
+    <!-- App-Specific Theme Colors -->
+    <!-- You can change these hex codes to your preferred colors -->
+
+    <!-- Backgrounds -->
+    <!-- <color name="ide_background">#FF2B2B2B</color> -->
+
+    <!-- <color name="toolbar_background">#FF3C3F41</color> -->
+
+    <!-- <color name="editor_background">#FF2B2B2B</color> -->
+
+    <!-- <color name="line_number_background">#FF313335</color> -->
+
+    <!-- <color name="input_background">#FF3C3F41</color> -->
+
+    <!-- <color name="console_background">#FF2B2B2B</color> -->
+
+    <!-- <color name="console_header_background">#FF3C3F41</color> -->
+
+
+    <!-- Text -->
+    <!-- <color name="text_primary">#FFBBBBBB</color> -->
+
+    <!-- <color name="text_secondary">#FF888888</color> -->
+
+    <!-- <color name="line_number_text">#FF606366</color> -->
+
+    <!-- <color name="console_text">#FFBBBBBB</color> -->
 </resources>
