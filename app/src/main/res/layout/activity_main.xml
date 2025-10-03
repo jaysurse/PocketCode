@@ -1,328 +1,115 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/ide_background">
+    android:padding="16dp">
 
-    <!-- Clean Toolbar -->
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
+    <TextView
         android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:background="@color/toolbar_background"
-        android:elevation="4dp">
+        android:layout_height="wrap_content"
+        android:text="PocketCode Mobile IDE"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginBottom="16dp" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:paddingEnd="16dp">
-
-            <!-- Essential Actions Only -->
-            <ImageButton
-                android:id="@+id/newFileBtn"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="New"
-                android:src="@android:drawable/ic_menu_add"
-                android:tint="@color/text_primary" />
-
-            <ImageButton
-                android:id="@+id/openBtn"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Open"
-                android:src="@android:drawable/ic_menu_upload"
-                android:tint="@color/text_primary" />
-
-            <ImageButton
-                android:id="@+id/saveBtn"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Save"
-                android:src="@android:drawable/ic_menu_save"
-                android:tint="@color/text_primary" />
-
-            <!-- Language Selector -->
-            <Spinner
-                android:id="@+id/langSpinner"
-                android:layout_width="120dp"
-                android:layout_height="40dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="8dp" />
-
-            <!-- Spacer -->
-            <View
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1" />
-
-            <!-- Run Button -->
-            <Button
-                android:id="@+id/runBtn"
-                android:layout_width="wrap_content"
-                android:layout_height="36dp"
-                android:background="@android:color/holo_green_dark"
-                android:text="▶ Run"
-                android:textColor="@android:color/white"
-                android:textSize="14sp"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp" />
-
-            <!-- Stop Button -->
-            <Button
-                android:id="@+id/stopBtn"
-                android:layout_width="wrap_content"
-                android:layout_height="36dp"
-                android:layout_marginStart="4dp"
-                android:background="@android:color/holo_red_dark"
-                android:text="⏹ Stop"
-                android:textColor="@android:color/white"
-                android:textSize="14sp"
-                android:paddingStart="12dp"
-                android:paddingEnd="12dp"
-                android:enabled="false" />
-
-        </LinearLayout>
-    </androidx.appcompat.widget.Toolbar>
-
-    <!-- File Info Bar -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="32dp"
-        android:background="@color/secondary_background"
+        android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
+        android:layout_marginBottom="16dp"
         android:gravity="center_vertical">
 
         <TextView
-            android:id="@+id/fileNameText"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Untitled.java"
-            android:textColor="@color/text_secondary"
-            android:textSize="12sp" />
-
-        <TextView
-            android:id="@+id/cursorPositionText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Line 1, Column 1"
-            android:textColor="@color/text_secondary"
-            android:textSize="12sp" />
+            android:text="Language: "
+            android:textSize="16sp"
+            android:layout_marginEnd="8dp" />
+
+        <Spinner
+            android:id="@+id/language_spinner"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
 
     </LinearLayout>
 
-    <!-- Main Content Container -->
     <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp">
+
+        <Button
+            android:id="@+id/new_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="4dp"
+            android:text="New"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/open_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="4dp"
+            android:text="Open"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/save_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="4dp"
+            android:text="Save"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/run_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="RUN"
+            android:textStyle="bold"
+            android:textAllCaps="false" />
+
+    </LinearLayout>
+
+    <EditText
+        android:id="@+id/code_editor"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="2"
+        android:hint="Write your code here..."
+        android:fontFamily="monospace"
+        android:textSize="14sp"
+        android:gravity="top"
+        android:inputType="textMultiLine|textNoSuggestions"
+        android:scrollbars="vertical"
+        android:layout_marginBottom="16dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Console Output:"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:id="@+id/console_output"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:orientation="vertical">
-
-        <!-- Code Editor Section -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:orientation="horizontal"
-            android:background="@color/editor_background">
-
-            <!-- Line Numbers -->
-            <TextView
-                android:id="@+id/lineNumbers"
-                android:layout_width="48dp"
-                android:layout_height="match_parent"
-                android:background="@color/line_number_background"
-                android:fontFamily="monospace"
-                android:gravity="end|top"
-                android:padding="8dp"
-                android:text="1\n2\n3\n4\n5"
-                android:textColor="@color/line_number_text"
-                android:textSize="12sp" />
-
-            <!-- Editor -->
-            <ScrollView
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1">
-
-                <HorizontalScrollView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <EditText
-                        android:id="@+id/codeEditor"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="@android:color/transparent"
-                        android:fontFamily="monospace"
-                        android:gravity="top|start"
-                        android:hint="Write your code here..."
-                        android:inputType="textMultiLine|textNoSuggestions"
-                        android:minWidth="300dp"
-                        android:padding="12dp"
-                        android:scrollbars="none"
-                        android:textColor="@color/text_primary"
-                        android:textColorHint="@color/text_secondary"
-                        android:textSize="14sp" />
-
-                </HorizontalScrollView>
-            </ScrollView>
-
-        </LinearLayout>
-
-        <!-- Interactive Console -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:background="@color/console_background"
-            android:orientation="vertical">
-
-            <!-- Console Header -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:background="@color/console_header_background"
-                android:gravity="center_vertical"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Interactive Console"
-                    android:textColor="@color/text_primary"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/consoleStatusText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Ready"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="11sp"
-                    android:layout_marginEnd="8dp" />
-
-                <ImageButton
-                    android:id="@+id/clearConsoleBtn"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="Clear"
-                    android:src="@android:drawable/ic_menu_close_clear_cancel"
-                    android:tint="@color/text_secondary" />
-
-            </LinearLayout>
-
-            <!-- Console Content -->
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1">
-
-                <!-- Console Output Area -->
-                <ScrollView
-                    android:id="@+id/consoleScrollView"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:padding="12dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:id="@+id/outputConsole"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="monospace"
-                            android:text="Interactive Console Ready\n\n• Run code to see output here\n• Type input when prompted\n• Press Enter to send input"
-                            android:textColor="@color/console_text"
-                            android:textSize="13sp"
-                            android:textIsSelectable="true" />
-
-                        <!-- Interactive Input Line (Initially Hidden) -->
-                        <LinearLayout
-                            android:id="@+id/inputPromptLayout"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:gravity="center_vertical"
-                            android:visibility="gone"
-                            android:layout_marginTop="4dp">
-
-                            <TextView
-                                android:id="@+id/inputPromptText"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="➤ "
-                                android:textColor="@color/console_text"
-                                android:fontFamily="monospace"
-                                android:textSize="13sp" />
-
-                            <EditText
-                                android:id="@+id/consoleInputField"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:background="@android:color/transparent"
-                                android:fontFamily="monospace"
-                                android:hint="Type input and press Enter..."
-                                android:inputType="text"
-                                android:textColor="@color/console_text"
-                                android:textColorHint="@color/text_secondary"
-                                android:textSize="13sp"
-                                android:padding="4dp" />
-
-                        </LinearLayout>
-
-                    </LinearLayout>
-
-                </ScrollView>
-
-            </RelativeLayout>
-
-        </LinearLayout>
-
-    </LinearLayout>
-
-    <!-- Status Bar -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="28dp"
-        android:background="@color/status_background"
-        android:gravity="center_vertical"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp">
-
-        <TextView
-            android:id="@+id/statusText"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Ready"
-            android:textColor="@color/text_secondary"
-            android:textSize="11sp" />
-
-        <ProgressBar
-            android:id="@+id/progressBar"
-            style="?android:attr/progressBarStyleSmall"
-            android:layout_width="16dp"
-            android:layout_height="16dp"
-            android:visibility="gone" />
-
-    </LinearLayout>
+        android:background="#f0f0f0"
+        android:fontFamily="monospace"
+        android:textSize="12sp"
+        android:padding="8dp"
+        android:scrollbars="vertical" />
 
 </LinearLayout>
