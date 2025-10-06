@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">CodeRunner</string>
+    <string-array name="languages">
+        <item>Python</item>
+        <item>Java</item>
+        <item>C</item>
+        <item>C++</item>
+    </string-array>
+
+</resources>
