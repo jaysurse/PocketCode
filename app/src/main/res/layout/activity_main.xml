@@ -1,157 +1,290 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#121212"
-    android:fillViewport="true">
+    android:background="@color/surface">
 
-    <LinearLayout
-        android:id="@+id/main"
+    <!-- Main scrollable content (keeps original visual layout) -->
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:layout_height="match_parent"
+        android:fillViewport="true">
 
-        <!-- Title -->
-        <TextView
-            android:text="Code Runner"
-            android:textSize="28sp"
-            android:textColor="#03DAC5"
-            android:textStyle="bold"
-            android:gravity="center"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingBottom="20dp"/>
-
-        <!-- Language Selector -->
-        <Spinner
-            android:id="@+id/langSpinner"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:entries="@array/languages"
-            android:backgroundTint="#03DAC5"
-            android:spinnerMode="dropdown"/>
-
-        <!-- Code Input Card -->
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="250dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="6dp"
-            android:layout_marginTop="16dp">
-
-            <EditText
-                android:id="@+id/codeInput"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:hint="Write or paste your code here..."
-                android:gravity="top|start"
-                android:background="@android:color/transparent"
-                android:textColor="#FFFFFF"
-                android:textSize="14sp"
-                android:padding="10dp"
-                android:inputType="textMultiLine"
-                android:scrollbars="vertical"/>
-        </androidx.cardview.widget.CardView>
-
-        <!-- Input Values Card -->
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="120dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="6dp"
-            android:layout_marginTop="16dp">
-
-            <EditText
-                android:id="@+id/stdinInput"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:hint="Enter input values (line by line)"
-                android:gravity="top|start"
-                android:background="@android:color/transparent"
-                android:textColor="#FFFFFF"
-                android:textSize="14sp"
-                android:padding="10dp"
-                android:inputType="textMultiLine"
-                android:scrollbars="vertical"/>
-        </androidx.cardview.widget.CardView>
-
-        <!-- Buttons Row -->
         <LinearLayout
+            android:id="@+id/main"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="16dp"
-            android:weightSum="3">
+            android:orientation="vertical"
+            android:padding="16dp">
 
-            <Button
-                android:id="@+id/runButton"
-                android:text="Run"
-                android:layout_weight="1"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:backgroundTint="#03DAC5"
-                android:textColor="#000000"
-                android:textStyle="bold"
-                android:layout_marginEnd="4dp"/>
-
-            <Button
-                android:id="@+id/saveButton"
-                android:text="Save"
-                android:layout_weight="1"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:backgroundTint="#03DAC5"
-                android:textColor="#000000"
-                android:textStyle="bold"
-                android:layout_marginEnd="4dp"
-                android:layout_marginStart="4dp"/>
-
-            <Button
-                android:id="@+id/openButton"
-                android:text="Open"
-                android:layout_weight="1"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:backgroundTint="#03DAC5"
-                android:textColor="#000000"
-                android:textStyle="bold"
-                android:layout_marginStart="4dp"/>
-        </LinearLayout>
-
-        <!-- Loader -->
-        <ProgressBar
-            android:id="@+id/progressBar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:visibility="gone"
-            style="@android:style/Widget.DeviceDefault.Light.ProgressBar.Large"
-            android:layout_marginTop="16dp"/>
-
-        <!-- Output Card -->
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="6dp"
-            android:layout_marginTop="16dp">
-
-            <ScrollView
-                android:id="@+id/outputScroll"
+            <!-- Header toolbar -->
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/header"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="56dp"
+                android:background="@color/brand_blue"
+                android:elevation="4dp"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp">
+
+                <ImageView
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:src="@mipmap/ic_launcher"
+                    android:contentDescription="@string/app_name"
+                    android:layout_marginEnd="12dp" />
 
                 <TextView
-                    android:id="@+id/outputView"
+                    android:id="@+id/toolbarTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/app_name"
+                    android:textColor="@color/white"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+            </androidx.appcompat.widget.Toolbar>
+
+            <!-- Small spacer -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="8dp" />
+
+            <!-- Language Selector label + spinner -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Language"
+                android:textColor="@color/muted"
+                android:textSize="12sp"
+                android:paddingTop="6dp" />
+
+            <Spinner
+                android:id="@+id/langSpinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:entries="@array/languages"
+                android:backgroundTint="@color/accent"
+                android:spinnerMode="dropdown"
+                android:contentDescription="Select programming language"/>
+
+            <!-- Code Input Card -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="6dp"
+                android:layout_marginTop="12dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Code Editor"
+                        android:textColor="@color/muted"
+                        android:textSize="12sp"
+                        android:padding="8dp" />
+
+                    <EditText
+                        android:id="@+id/codeInput"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:hint="Write or paste your code here..."
+                        android:gravity="top|start"
+                        android:background="@android:color/transparent"
+                        android:textColor="#FFFFFF"
+                        android:textSize="14sp"
+                        android:padding="12dp"
+                        android:inputType="textMultiLine|textNoSuggestions"
+                        android:scrollbars="vertical"
+                        android:fontFamily="monospace"
+                        android:textIsSelectable="true"
+                        android:importantForAutofill="no"/>
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Input Values Card -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp"
+                android:layout_marginTop="12dp">
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="10dp"
-                    android:textColor="#00FF00"
-                    android:text="Output will appear here..."
-                    android:textSize="14sp"/>
-            </ScrollView>
-        </androidx.cardview.widget.CardView>
-    </LinearLayout>
-</ScrollView>
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Input (stdin)"
+                        android:textColor="@color/muted"
+                        android:textSize="12sp"
+                        android:padding="8dp" />
+
+                    <EditText
+                        android:id="@+id/stdinInput"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Enter input values (line by line)"
+                        android:gravity="top|start"
+                        android:background="@android:color/transparent"
+                        android:textColor="#FFFFFF"
+                        android:textSize="14sp"
+                        android:padding="10dp"
+                        android:inputType="textMultiLine"
+                        android:scrollbars="vertical"/>
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Buttons Row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="12dp"
+                android:gravity="center_vertical">
+
+                <Button
+                    android:id="@+id/runButton"
+                    android:text="Run"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="48dp"
+                    android:backgroundTint="@color/brand_blue"
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+                    android:layout_marginEnd="8dp"
+                    android:padding="8dp"/>
+
+                <Button
+                    android:id="@+id/saveButton"
+                    android:text="Save"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:backgroundTint="@color/accent"
+                    android:textColor="#000"
+                    android:layout_marginEnd="8dp"
+                    android:padding="8dp"/>
+
+                <Button
+                    android:id="@+id/openButton"
+                    android:text="Open"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:backgroundTint="@color/brand_dark"
+                    android:textColor="@color/white"
+                    android:padding="8dp"/>
+
+            </LinearLayout>
+
+            <!-- Loader (original, kept for backward compatibility) -->
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:visibility="gone"
+                style="@android:style/Widget.DeviceDefault.Light.ProgressBar.Large"
+                android:layout_marginTop="16dp"/>
+
+            <!-- Output Card -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="6dp"
+                android:layout_marginTop="12dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:padding="8dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:text="Output"
+                            android:textColor="@color/muted"
+                            android:textSize="12sp" />
+
+                        <!-- Output actions removed as requested -->
+
+                    </LinearLayout>
+
+                    <ScrollView
+                        android:id="@+id/outputScroll"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <TextView
+                            android:id="@+id/outputView"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:padding="10dp"
+                            android:textColor="@color/muted"
+                            android:text="Output will appear here..."
+                            android:textSize="14sp"
+                            android:fontFamily="monospace"/>
+
+                    </ScrollView>
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Run overlay: full-screen semi-transparent view shown while code executes -->
+    <FrameLayout
+        android:id="@+id/runOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        android:background="#77000000">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp"
+            android:background="@android:color/white"
+            android:layout_gravity="center">
+
+            <ProgressBar
+                android:id="@+id/overlayProgress"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                style="@android:style/Widget.DeviceDefault.Light.ProgressBar.Large" />
+
+            <TextView
+                android:id="@+id/overlayText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Running code..."
+                android:textColor="#000000"
+                android:layout_marginTop="12dp" />
+
+        </LinearLayout>
+
+    </FrameLayout>
+
+</FrameLayout>

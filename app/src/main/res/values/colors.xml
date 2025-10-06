@@ -2,4 +2,30 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- Primary simplified tokens -->
+    <color name="primary">#0A66C2</color>
+    <color name="primaryVariant">#044C8C</color>
+    <color name="secondary">#03DAC5</color>
+
+    <!-- Background / surface tokens (dark default) -->
+    <color name="background_dark">#0B1720</color>
+    <color name="surface_dark">#0F2430</color>
+    <color name="onSurface_dark">#E6F7F3</color>
+
+    <!-- Backwards-compatible surface token used in layouts -->
+    <color name="surface">#0B1720</color>
+
+    <!-- Light theme tokens -->
+    <color name="background_light">#FFFFFF</color>
+    <color name="surface_light">#F5F7FA</color>
+    <color name="onSurface_light">#0B1720</color>
+
+    <!-- Legacy LinkedIn-like palette (kept for drawables)
+        brand_blue used earlier maps to primary
+    -->
+    <color name="brand_blue">#0077B5</color>
+    <color name="brand_dark">#005582</color>
+    <color name="accent">#03DAC5</color>
+    <color name="muted">#A7BBC1</color>
 </resources>

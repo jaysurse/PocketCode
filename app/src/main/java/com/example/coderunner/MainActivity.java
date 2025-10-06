@@ -4,9 +4,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.*;
 import android.view.View;
+import android.view.animation.Animation;
 import android.content.Intent;
 import android.net.Uri;
 import android.provider.DocumentsContract;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import okhttp3.*;
 import org.json.JSONObject;
 import java.io.*;
@@ -17,7 +22,10 @@ public class MainActivity extends AppCompatActivity {
     EditText codeInput, stdinInput;
     Button runButton, saveButton, openButton;
     TextView outputView;
-    ProgressBar progressBar;
+    View runOverlay;
+    ProgressBar overlayProgress;
+    TextView overlayText;
+    String[] languageIds;
 
     private final String CLIENT_ID = "ef9b6ba01486c49d61cdcb1af81d9e07";
     private final String CLIENT_SECRET = "49e89521188427b9ef30232b5e9c954a5e11bd3dff169d479b33ad87cb469791";
@@ -26,9 +34,18 @@ public class MainActivity extends AppCompatActivity {
     private final int REQUEST_SAVE_FILE = 1;
     private final int REQUEST_OPEN_FILE = 2;
     private Uri saveUri;
+    private static final String PREF_THEME = "pref_theme"; // values: light/dark
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Apply theme from preferences before view inflation
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        String t = prefs.getString(PREF_THEME, "dark");
+        if ("light".equals(t)) {
+            setTheme(R.style.AppTheme_Light);
+        } else {
+            setTheme(R.style.AppTheme_Dark);
+        }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -40,7 +57,60 @@ public class MainActivity extends AppCompatActivity {
         saveButton = findViewById(R.id.saveButton);
         openButton = findViewById(R.id.openButton);
         outputView = findViewById(R.id.outputView);
-        progressBar = findViewById(R.id.progressBar);
+
+        // Fade in header
+        try {
+            View header = findViewById(R.id.header);
+            Animation fade = android.view.animation.AnimationUtils.loadAnimation(this, R.anim.fade_in);
+            header.startAnimation(fade);
+        } catch (Exception ignored) {
+        }
+
+        // Overlay UI
+        runOverlay = findViewById(R.id.runOverlay);
+        overlayProgress = findViewById(R.id.overlayProgress);
+        overlayText = findViewById(R.id.overlayText);
+
+        // Load language ids from resources (must align with spinner order)
+        languageIds = getResources().getStringArray(R.array.language_ids);
+
+        // Output action buttons removed per request
+
+        // Prefill from example extras (if any)
+        Intent incoming = getIntent();
+        if (incoming != null) {
+            String exampleCode = incoming.getStringExtra("example_code");
+            String exampleLang = incoming.getStringExtra("example_lang");
+            if (exampleCode != null && !exampleCode.trim().isEmpty()) {
+                codeInput.setText(exampleCode);
+            }
+            if (exampleLang != null && !exampleLang.trim().isEmpty()) {
+                // spinner entries are defined in res/values/strings.xml as: Python, Java, C,
+                // C++
+                int index = 0; // default Python
+                switch (exampleLang) {
+                    case "Python":
+                        index = 0;
+                        break;
+                    case "Java":
+                        index = 1;
+                        break;
+                    case "C":
+                        index = 2;
+                        break;
+                    case "C++":
+                        index = 3;
+                        break;
+                    default:
+                        index = 0;
+                        break;
+                }
+                try {
+                    langSpinner.setSelection(index);
+                } catch (Exception ignored) {
+                }
+            }
+        }
 
         // Run code
         runButton.setOnClickListener(v -> {
@@ -56,7 +126,8 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
 
-            progressBar.setVisibility(View.VISIBLE);
+            // Show overlay and disable inputs
+            setRunningState(true);
             outputView.setText("");
             runCodeOnline(lang, code, stdin);
         });
@@ -73,9 +144,29 @@ public class MainActivity extends AppCompatActivity {
         openButton.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
             intent.setType("*/*"); // allow all code file types
-            intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"text/plain"});
+            intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[] { "text/plain" });
             startActivityForResult(intent, REQUEST_OPEN_FILE);
         });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_toggle_theme) {
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+            String t = prefs.getString(PREF_THEME, "dark");
+            String newTheme = "dark".equals(t) ? "light" : "dark";
+            prefs.edit().putString(PREF_THEME, newTheme).apply();
+            // Recreate activity to apply theme
+            recreate();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -138,7 +229,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     runOnUiThread(() -> {
-                        progressBar.setVisibility(View.GONE);
+                        setRunningState(false);
                         outputView.setText("Network error: " + e.getMessage());
                     });
                 }
@@ -147,7 +238,7 @@ public class MainActivity extends AppCompatActivity {
                 public void onResponse(Call call, Response response) throws IOException {
                     final String respBody = response.body() != null ? response.body().string() : "";
                     runOnUiThread(() -> {
-                        progressBar.setVisibility(View.GONE);
+                        setRunningState(false);
                         try {
                             JSONObject res = new JSONObject(respBody);
                             String output = res.optString("output", respBody);
@@ -156,7 +247,7 @@ public class MainActivity extends AppCompatActivity {
                             String display = "";
                             if (!stdin.trim().isEmpty()) {
                                 String[] inputs = stdin.split("\n");
-                                String[] prompts = new String[]{"Enter first number: ", "Enter second number: "};
+                                String[] prompts = new String[] { "Enter first number: ", "Enter second number: " };
                                 for (int i = 0; i < inputs.length && i < prompts.length; i++) {
                                     display += prompts[i] + inputs[i] + "\n";
                                 }
@@ -172,18 +263,53 @@ public class MainActivity extends AppCompatActivity {
             });
 
         } catch (Exception e) {
-            progressBar.setVisibility(View.GONE);
+            setRunningState(false);
             outputView.setText("Error: " + e.getMessage());
         }
     }
 
     private String mapLanguage(String lang) {
+        // Map using the languageIds array if possible
+        try {
+            int pos = langSpinner.getSelectedItemPosition();
+            if (pos >= 0 && pos < languageIds.length)
+                return languageIds[pos];
+        } catch (Exception ignored) {
+        }
+        // fallback mapping
         switch (lang) {
-            case "C": return "c";
-            case "C++": return "cpp17";
-            case "Java": return "java";
-            case "Python": return "python3";
-            default: return "python3";
+            case "C":
+                return "c";
+            case "C++":
+                return "cpp17";
+            case "Java":
+                return "java";
+            case "Python":
+                return "python3";
+            default:
+                return "python3";
+        }
+    }
+
+    private void setRunningState(boolean running) {
+        if (running) {
+            runOverlay.setVisibility(View.VISIBLE);
+            overlayProgress.setIndeterminate(true);
+            runButton.setEnabled(false);
+            saveButton.setEnabled(false);
+            openButton.setEnabled(false);
+            langSpinner.setEnabled(false);
+            codeInput.setEnabled(false);
+            stdinInput.setEnabled(false);
+        } else {
+            runOverlay.setVisibility(View.GONE);
+            overlayProgress.setIndeterminate(false);
+            runButton.setEnabled(true);
+            saveButton.setEnabled(true);
+            openButton.setEnabled(true);
+            langSpinner.setEnabled(true);
+            codeInput.setEnabled(true);
+            stdinInput.setEnabled(true);
         }
     }
 }
