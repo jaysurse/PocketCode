@@ -27,8 +27,11 @@ public class MainActivity extends AppCompatActivity {
     TextView overlayText;
     String[] languageIds;
 
-    private final String CLIENT_ID = "ef9b6ba01486c49d61cdcb1af81d9e07";
-    private final String CLIENT_SECRET = "49e89521188427b9ef30232b5e9c954a5e11bd3dff169d479b33ad87cb469791";
+//    private final String CLIENT_ID = "ef9b6ba01486c49d61cdcb1af81d9e07";
+    private final String CLIENT_ID = "d8add5b56ca67e483442f088aab7753e";
+
+//    private final String CLIENT_SECRET = "49e89521188427b9ef30232b5e9c954a5e11bd3dff169d479b33ad87cb469791";
+    private final String CLIENT_SECRET = "76fa32950f1cd5ca590c0475e35eb74c452d9be7ce745491490a62431f127401";
     private final String API_URL = "https://api.jdoodle.com/v1/execute";
 
     private final int REQUEST_SAVE_FILE = 1;

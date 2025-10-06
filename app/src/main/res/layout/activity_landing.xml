@@ -7,44 +7,184 @@
     android:padding="20dp"
     tools:context=".LandingActivity">
 
+    <!-- Animated background particles -->
+    <View
+        android:id="@+id/particle1"
+        android:layout_width="4dp"
+        android:layout_height="4dp"
+        android:background="@drawable/particle_bg"
+        android:alpha="0.6"
+        android:layout_marginTop="50dp"
+        android:layout_marginStart="30dp" />
+
+    <View
+        android:id="@+id/particle2"
+        android:layout_width="6dp"
+        android:layout_height="6dp"
+        android:background="@drawable/particle_bg"
+        android:alpha="0.4"
+        android:layout_marginTop="150dp"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="50dp" />
+
+    <View
+        android:id="@+id/particle3"
+        android:layout_width="3dp"
+        android:layout_height="3dp"
+        android:background="@drawable/particle_bg"
+        android:alpha="0.7"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="100dp"
+        android:layout_marginStart="80dp" />
+
+    <View
+        android:id="@+id/particle4"
+        android:layout_width="5dp"
+        android:layout_height="5dp"
+        android:background="@drawable/particle_bg"
+        android:alpha="0.5"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginBottom="200dp"
+        android:layout_marginEnd="100dp" />
+
     <LinearLayout
         android:id="@+id/landing_card"
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="24dp"
+        android:padding="28dp"
         android:layout_centerInParent="true"
         android:background="@drawable/landing_card_bg"
-        android:elevation="8dp">
+        android:elevation="12dp">
 
-        <ImageView
-            android:id="@+id/logo"
-            android:layout_width="96dp"
-            android:layout_height="96dp"
-            android:layout_gravity="center"
-            android:src="@drawable/ic_pocket_logo"
-            android:contentDescription="App logo" />
+        <!-- Logo container with glow effect -->
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center">
+
+            <ImageView
+                android:id="@+id/logo"
+                android:layout_width="wrap_content"
+                android:layout_height="96dp"
+                android:layout_gravity="center"
+                android:contentDescription="App logo"
+                android:src="@drawable/ic_pocket_logo" />
+        </FrameLayout>
 
         <TextView
             android:id="@+id/title"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="16dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/app_name"
             android:textColor="@color/brand_blue"
-            android:textSize="20sp"
+            android:textSize="24sp"
             android:textStyle="bold"
-            android:gravity="center" />
+            android:gravity="center"
+            android:letterSpacing="0.05" />
 
         <TextView
             android:id="@+id/subtitle"
-            android:layout_marginTop="6dp"
+            android:layout_marginTop="8dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Run, test and share code snippets quickly"
             android:textColor="#A7BBC1"
             android:textSize="14sp"
-            android:gravity="center" />
+            android:gravity="center"
+            android:alpha="0.9" />
+
+        <!-- Feature badges with icons -->
+        <LinearLayout
+            android:id="@+id/features_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="20dp"
+            android:gravity="center"
+            android:weightSum="3">
+
+            <LinearLayout
+                android:id="@+id/feature1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="8dp">
+
+                <TextView
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:text="⚡"
+                    android:textSize="20sp"
+                    android:gravity="center"
+                    android:background="@drawable/feature_badge_bg" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Fast"
+                    android:textColor="#E0F7F4"
+                    android:textSize="11sp"
+                    android:layout_marginTop="4dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/feature2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="8dp">
+
+                <TextView
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:text="🔧"
+                    android:textSize="20sp"
+                    android:gravity="center"
+                    android:background="@drawable/feature_badge_bg" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Simple"
+                    android:textColor="#E0F7F4"
+                    android:textSize="11sp"
+                    android:layout_marginTop="4dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/feature3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="8dp">
+
+                <TextView
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:text="🚀"
+                    android:textSize="20sp"
+                    android:gravity="center"
+                    android:background="@drawable/feature_badge_bg" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Powerful"
+                    android:textColor="#E0F7F4"
+                    android:textSize="11sp"
+                    android:layout_marginTop="4dp" />
+            </LinearLayout>
+
+        </LinearLayout>
 
         <!-- How to Use / Demo -->
         <LinearLayout
@@ -52,37 +192,55 @@
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:padding="8dp">
+            android:layout_marginTop="20dp"
+            android:padding="12dp"
+            android:background="@drawable/howto_bg">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="How to Use : "
+                android:text="Quick Guide"
                 android:textColor="#E0F7F4"
                 android:textStyle="bold"
-                android:textSize="14sp" />
+                android:textSize="15sp"
+                android:drawablePadding="8dp" />
 
             <TextView
+                android:id="@+id/guide_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="1. Select language from the dropdown\n2. Paste/write your code\n3. Enter runtime input if needed\n4. Click Run\n5. View output in the console area\n6. Save or open files"
+                android:text="1. Select language from the dropdown\n2. Paste/write your code\n3. Enter runtime input if needed\n4. Click Run to execute\n5. View output in console\n6. Save or share your work"
                 android:textColor="#A7BBC1"
                 android:textSize="13sp"
-                android:layout_marginTop="6dp" />
+                android:lineSpacingExtra="3dp"
+                android:layout_marginTop="8dp" />
 
         </LinearLayout>
 
         <Button
             android:id="@+id/getStartedButton"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginTop="18dp"
+            android:layout_height="52dp"
+            android:layout_marginTop="24dp"
             android:text="Get Started"
             android:background="@drawable/primary_button_bg"
             android:textColor="#000000"
+            android:textSize="16sp"
             android:textStyle="bold"
+            android:letterSpacing="0.05"
+            android:elevation="4dp"
             android:stateListAnimator="@null" />
+
+        <TextView
+            android:id="@+id/version_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="16dp"
+            android:text="v1.0.0"
+            android:textColor="#6B7F86"
+            android:textSize="11sp"
+            android:alpha="0.6" />
 
     </LinearLayout>
 
