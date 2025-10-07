@@ -44,6 +44,9 @@ public class MainActivity extends AppCompatActivity {
     private final int REQUEST_OPEN_FILE = 2;
     private final int REQUEST_OPEN_SNIPPET = 3;
     private Uri saveUri;
+    // pending export content/filename when user chooses to save to device
+    private String pendingExportContent = null;
+    private String pendingExportFilename = null;
     private static final String PREF_THEME = "pref_theme"; // values: light/dark
 
     @Override
@@ -257,45 +260,39 @@ public class MainActivity extends AppCompatActivity {
             runCodeOnline(lang, code, stdin);
         });
 
-        // Save: automatically save to DB and to a file inside app external files
-        // directory
+        // Save: prompt for name and validate content before saving
         saveButton.setOnClickListener(v -> {
-            final String title = ""; // use empty title field; we can derive one from first line or timestamp
             final String code = codeInput.getText().toString();
-            final String lang = getSelectedLanguageId();
-            final long now = System.currentTimeMillis();
 
-            // Build snippet object
-            final com.example.coderunner.data.Snippet s = new com.example.coderunner.data.Snippet(title, lang, code,
-                    now);
+            // Check if code is empty or just whitespace
+            if (code.trim().isEmpty()) {
+                Toast.makeText(this, "Cannot save empty code! Please write some code first.", Toast.LENGTH_LONG).show();
+                return;
+            }
 
-            // Save to DB and file on background thread
-            new Thread(() -> {
-                try {
-                    com.example.coderunner.data.SnippetDbHelper dbh = new com.example.coderunner.data.SnippetDbHelper(
-                            this);
-                    long id = dbh.insertSnippet(s);
+            // Show dialog to ask for snippet name
+            final EditText nameInput = new EditText(this);
+            nameInput.setHint("Enter snippet name");
 
-                    // Also write to external files dir under "snippets"
-                    java.io.File dir = new java.io.File(getExternalFilesDir(null), "snippets");
-                    if (!dir.exists())
-                        dir.mkdirs();
+            // Generate suggested name from first non-empty line of code
+            String suggestedName = generateSnippetTitle(code);
+            nameInput.setText(suggestedName);
+            nameInput.selectAll(); // Select all text so user can easily replace it
 
-                    String sanitized = "snippet_" + id + "_" + Long.toString(now);
-                    java.io.File out = new java.io.File(dir, sanitized + ".txt");
-                    try (java.io.FileOutputStream fos = new java.io.FileOutputStream(out)) {
-                        fos.write(code.getBytes(java.nio.charset.StandardCharsets.UTF_8));
-                        fos.flush();
-                    }
-
-                    final long savedId = id;
-                    runOnUiThread(() -> Toast.makeText(this,
-                            "Saved to DB (id=" + savedId + ") and file: " + out.getName(), Toast.LENGTH_SHORT).show());
-                } catch (Exception ex) {
-                    runOnUiThread(
-                            () -> Toast.makeText(this, "Save error: " + ex.getMessage(), Toast.LENGTH_LONG).show());
-                }
-            }).start();
+            new android.app.AlertDialog.Builder(this)
+                    .setTitle("Save Snippet")
+                    .setMessage("Give your code snippet a name:")
+                    .setView(nameInput)
+                    .setPositiveButton("Save", (dialog, which) -> {
+                        String title = nameInput.getText().toString().trim();
+                        // If user cleared the name, use the suggested name
+                        if (title.isEmpty()) {
+                            title = suggestedName;
+                        }
+                        saveSnippet(title, code);
+                    })
+                    .setNegativeButton("Cancel", null)
+                    .show();
         });
 
         // Open: launch system file picker to open a file from device
@@ -364,9 +361,14 @@ public class MainActivity extends AppCompatActivity {
                 saveUri = uri;
                 try {
                     OutputStream os = getContentResolver().openOutputStream(saveUri);
-                    os.write(codeInput.getText().toString().getBytes());
+                    String toWrite = pendingExportContent != null ? pendingExportContent
+                            : codeInput.getText().toString();
+                    os.write(toWrite.getBytes(java.nio.charset.StandardCharsets.UTF_8));
                     os.close();
                     Toast.makeText(this, "File saved successfully!", Toast.LENGTH_SHORT).show();
+                    // clear pending export
+                    pendingExportContent = null;
+                    pendingExportFilename = null;
                 } catch (Exception e) {
                     Toast.makeText(this, "Error saving file: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 }
@@ -522,5 +524,81 @@ public class MainActivity extends AppCompatActivity {
             codeInput.setEnabled(true);
             stdinInput.setEnabled(true);
         }
+    }
+
+    // Generate a meaningful title from the first non-empty line of code
+    private String generateSnippetTitle(String code) {
+        String[] lines = code.split("\n");
+        for (String line : lines) {
+            String trimmed = line.trim();
+            if (!trimmed.isEmpty() && !trimmed.startsWith("//") && !trimmed.startsWith("#")
+                    && !trimmed.startsWith("/*") && !trimmed.startsWith("*")) {
+                // Take first meaningful line, clean it up and limit length
+                String title = trimmed.replaceAll("[{}();]", "").trim();
+                if (title.length() > 30) {
+                    title = title.substring(0, 30) + "...";
+                }
+                if (!title.isEmpty()) {
+                    return title;
+                }
+            }
+        }
+        // Fallback to timestamp if no meaningful line found
+        return "Snippet " + new java.text.SimpleDateFormat("MMM dd, HH:mm", java.util.Locale.getDefault())
+                .format(new java.util.Date());
+    }
+
+    // Perform the actual save operation
+    private void saveSnippet(String title, String code) {
+        final String lang = getSelectedLanguageId();
+        final long now = System.currentTimeMillis();
+
+        // Build snippet object
+        final com.example.coderunner.data.Snippet s = new com.example.coderunner.data.Snippet(title, lang, code, now);
+
+        // Save to DB and file on background thread
+        new Thread(() -> {
+            try {
+                com.example.coderunner.data.SnippetDbHelper dbh = new com.example.coderunner.data.SnippetDbHelper(this);
+                long id = dbh.insertSnippet(s);
+
+                // Also write to external files dir under "snippets"
+                java.io.File dir = new java.io.File(getExternalFilesDir(null), "snippets");
+                if (!dir.exists())
+                    dir.mkdirs();
+
+                String sanitized = "snippet_" + id + "_" + Long.toString(now);
+                java.io.File out = new java.io.File(dir, sanitized + ".txt");
+                try (java.io.FileOutputStream fos = new java.io.FileOutputStream(out)) {
+                    fos.write(code.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                    fos.flush();
+                }
+
+                final long savedId = id;
+                runOnUiThread(() -> {
+                    Toast.makeText(this, "Saved: " + title, Toast.LENGTH_SHORT).show();
+                    // Refresh the drawer to show the new snippet
+                    loadDrawerSnippets();
+                    // Offer to save/export the snippet to device storage
+                    new android.app.AlertDialog.Builder(this)
+                            .setTitle("Export to device")
+                            .setMessage("Do you want to save a copy of this snippet to device storage?")
+                            .setPositiveButton("Yes", (dlg, which) -> {
+                                // prepare pending content and filename then launch create document
+                                pendingExportContent = code;
+                                String safeTitle = title.replaceAll("[\\\\/:*?\"<>|]", "_");
+                                pendingExportFilename = safeTitle + ".txt";
+                                Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+                                intent.setType("text/plain");
+                                intent.putExtra(Intent.EXTRA_TITLE, pendingExportFilename);
+                                startActivityForResult(intent, REQUEST_SAVE_FILE);
+                            })
+                            .setNegativeButton("No", null)
+                            .show();
+                });
+            } catch (Exception ex) {
+                runOnUiThread(() -> Toast.makeText(this, "Save error: " + ex.getMessage(), Toast.LENGTH_LONG).show());
+            }
+        }).start();
     }
 }
