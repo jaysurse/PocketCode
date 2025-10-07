@@ -231,6 +231,8 @@
             android:elevation="4dp"
             android:stateListAnimator="@null" />
 
+        <!-- login button removed -->
+
         <TextView
             android:id="@+id/version_text"
             android:layout_width="wrap_content"

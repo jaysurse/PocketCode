@@ -35,6 +35,7 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:5.1.0");
     implementation("androidx.cardview:cardview:1.0.0")
     implementation("com.squareup.okhttp3:okhttp:4.9.3")
+    // (Using raw SQLite helper for local snippet storage)
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)

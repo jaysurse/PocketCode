@@ -10,6 +10,8 @@ import android.net.Uri;
 import android.provider.DocumentsContract;
 import android.view.Menu;
 import android.view.MenuItem;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import okhttp3.*;
@@ -26,16 +28,21 @@ public class MainActivity extends AppCompatActivity {
     ProgressBar overlayProgress;
     TextView overlayText;
     String[] languageIds;
+    DrawerLayout drawerLayout;
+    androidx.recyclerview.widget.RecyclerView drawerRecycler;
+    com.example.coderunner.ui.db.SnippetAdapter drawerAdapter;
 
-//    private final String CLIENT_ID = "ef9b6ba01486c49d61cdcb1af81d9e07";
+    // private final String CLIENT_ID = "ef9b6ba01486c49d61cdcb1af81d9e07";
     private final String CLIENT_ID = "d8add5b56ca67e483442f088aab7753e";
 
-//    private final String CLIENT_SECRET = "49e89521188427b9ef30232b5e9c954a5e11bd3dff169d479b33ad87cb469791";
+    // private final String CLIENT_SECRET =
+    // "49e89521188427b9ef30232b5e9c954a5e11bd3dff169d479b33ad87cb469791";
     private final String CLIENT_SECRET = "76fa32950f1cd5ca590c0475e35eb74c452d9be7ce745491490a62431f127401";
     private final String API_URL = "https://api.jdoodle.com/v1/execute";
 
     private final int REQUEST_SAVE_FILE = 1;
     private final int REQUEST_OPEN_FILE = 2;
+    private final int REQUEST_OPEN_SNIPPET = 3;
     private Uri saveUri;
     private static final String PREF_THEME = "pref_theme"; // values: light/dark
 
@@ -60,10 +67,125 @@ public class MainActivity extends AppCompatActivity {
         saveButton = findViewById(R.id.saveButton);
         openButton = findViewById(R.id.openButton);
         outputView = findViewById(R.id.outputView);
+        drawerLayout = findViewById(R.id.drawer_layout);
+        drawerRecycler = findViewById(R.id.snippetDrawerRecycler);
+        drawerRecycler.setLayoutManager(new LinearLayoutManager(this));
+        drawerAdapter = new com.example.coderunner.ui.db.SnippetAdapter(
+                new java.util.ArrayList<com.example.coderunner.data.Snippet>(),
+                new com.example.coderunner.ui.db.SnippetAdapter.OnSelect() {
+                    @Override
+                    public void onSelect(com.example.coderunner.data.Snippet s) {
+                        runOnUiThread(() -> {
+                            codeInput.setText(s.code == null ? "" : s.code);
+                            selectLanguageById(s.languageId);
+                            Toast.makeText(MainActivity.this,
+                                    "Loaded: " + (s.title == null ? "Untitled" : s.title), Toast.LENGTH_SHORT).show();
+                            drawerLayout.closeDrawers();
+                        });
+                    }
+                },
+                new com.example.coderunner.ui.db.SnippetAdapter.OnLongAction() {
+                    @Override
+                    public void onLongAction(com.example.coderunner.data.Snippet snippet, View anchor) {
+                        runOnUiThread(() -> {
+                            String[] opts = new String[] { "Rename", "Delete" };
+                            new android.app.AlertDialog.Builder(MainActivity.this)
+                                    .setTitle(snippet.title == null || snippet.title.isEmpty() ? "Untitled"
+                                            : snippet.title)
+                                    .setItems(opts, (dialog, which) -> {
+                                        if (which == 0) {
+                                            // no-op: user can tap the edit icon to rename inline
+                                        } else if (which == 1) {
+                                            new Thread(() -> {
+                                                com.example.coderunner.data.SnippetDbHelper dbh = new com.example.coderunner.data.SnippetDbHelper(
+                                                        MainActivity.this);
+                                                dbh.deleteSnippet(snippet.id);
+                                                java.io.File dir = new java.io.File(getExternalFilesDir(null),
+                                                        "snippets");
+                                                if (dir.exists()) {
+                                                    java.io.File[] files = dir.listFiles();
+                                                    if (files != null) {
+                                                        for (java.io.File f : files) {
+                                                            if (f.getName().startsWith("snippet_" + snippet.id + "_")) {
+                                                                f.delete();
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                loadDrawerSnippets();
+                                            }).start();
+                                        }
+                                    })
+                                    .show();
+                        });
+                    }
+                },
+                new com.example.coderunner.ui.db.SnippetAdapter.OnAction() {
+                    @Override
+                    public void onRename(com.example.coderunner.data.Snippet snippet, String newTitle) {
+                        snippet.title = newTitle;
+                        snippet.lastEdited = System.currentTimeMillis();
+                        new Thread(() -> {
+                            com.example.coderunner.data.SnippetDbHelper dbh = new com.example.coderunner.data.SnippetDbHelper(
+                                    MainActivity.this);
+                            dbh.updateSnippet(snippet);
+                            loadDrawerSnippets();
+                        }).start();
+                    }
 
-        // Fade in header
+                    @Override
+                    public void onDelete(com.example.coderunner.data.Snippet snippet) {
+                        // confirm deletion on UI thread
+                        runOnUiThread(() -> {
+                            new android.app.AlertDialog.Builder(MainActivity.this)
+                                    .setTitle("Delete snippet")
+                                    .setMessage("Are you sure you want to delete this snippet?")
+                                    .setPositiveButton("Delete", (dialog, which) -> {
+                                        new Thread(() -> {
+                                            com.example.coderunner.data.SnippetDbHelper dbh = new com.example.coderunner.data.SnippetDbHelper(
+                                                    MainActivity.this);
+                                            dbh.deleteSnippet(snippet.id);
+                                            java.io.File dir = new java.io.File(getExternalFilesDir(null), "snippets");
+                                            if (dir.exists()) {
+                                                java.io.File[] files = dir.listFiles();
+                                                if (files != null) {
+                                                    for (java.io.File f : files) {
+                                                        if (f.getName().startsWith("snippet_" + snippet.id + "_")) {
+                                                            f.delete();
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            runOnUiThread(MainActivity.this::loadDrawerSnippets);
+                                        }).start();
+                                    })
+                                    .setNegativeButton("Cancel", null)
+                                    .show();
+                        });
+                    }
+                });
+        drawerRecycler.setAdapter(drawerAdapter);
+
+        // ...existing UI initialization...
+
+        // Setup toolbar as action bar and fade in header
         try {
-            View header = findViewById(R.id.header);
+            androidx.appcompat.widget.Toolbar header = findViewById(R.id.header);
+            // set as support action bar so menu works and we can set navigation icon
+            try {
+                setSupportActionBar(header);
+                // use a simple menu/hamburger icon from AppCompat if available
+                header.setNavigationIcon(androidx.appcompat.R.drawable.abc_ic_menu_overflow_material);
+                header.setNavigationOnClickListener(v -> {
+                    if (drawerLayout.isDrawerOpen(android.view.Gravity.START))
+                        drawerLayout.closeDrawers();
+                    else {
+                        loadDrawerSnippets();
+                        drawerLayout.openDrawer(android.view.Gravity.START);
+                    }
+                });
+            } catch (Exception ignored) {
+            }
             Animation fade = android.view.animation.AnimationUtils.loadAnimation(this, R.anim.fade_in);
             header.startAnimation(fade);
         } catch (Exception ignored) {
@@ -135,21 +257,68 @@ public class MainActivity extends AppCompatActivity {
             runCodeOnline(lang, code, stdin);
         });
 
-        // Save file
+        // Save: automatically save to DB and to a file inside app external files
+        // directory
         saveButton.setOnClickListener(v -> {
-            Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
-            intent.setType("text/plain");
-            intent.putExtra(Intent.EXTRA_TITLE, ""); // user enters filename + extension
-            startActivityForResult(intent, REQUEST_SAVE_FILE);
+            final String title = ""; // use empty title field; we can derive one from first line or timestamp
+            final String code = codeInput.getText().toString();
+            final String lang = getSelectedLanguageId();
+            final long now = System.currentTimeMillis();
+
+            // Build snippet object
+            final com.example.coderunner.data.Snippet s = new com.example.coderunner.data.Snippet(title, lang, code,
+                    now);
+
+            // Save to DB and file on background thread
+            new Thread(() -> {
+                try {
+                    com.example.coderunner.data.SnippetDbHelper dbh = new com.example.coderunner.data.SnippetDbHelper(
+                            this);
+                    long id = dbh.insertSnippet(s);
+
+                    // Also write to external files dir under "snippets"
+                    java.io.File dir = new java.io.File(getExternalFilesDir(null), "snippets");
+                    if (!dir.exists())
+                        dir.mkdirs();
+
+                    String sanitized = "snippet_" + id + "_" + Long.toString(now);
+                    java.io.File out = new java.io.File(dir, sanitized + ".txt");
+                    try (java.io.FileOutputStream fos = new java.io.FileOutputStream(out)) {
+                        fos.write(code.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                        fos.flush();
+                    }
+
+                    final long savedId = id;
+                    runOnUiThread(() -> Toast.makeText(this,
+                            "Saved to DB (id=" + savedId + ") and file: " + out.getName(), Toast.LENGTH_SHORT).show());
+                } catch (Exception ex) {
+                    runOnUiThread(
+                            () -> Toast.makeText(this, "Save error: " + ex.getMessage(), Toast.LENGTH_LONG).show());
+                }
+            }).start();
         });
 
-        // Open file
+        // Open: launch system file picker to open a file from device
         openButton.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-            intent.setType("*/*"); // allow all code file types
+            intent.setType("*/*");
             intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[] { "text/plain" });
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
             startActivityForResult(intent, REQUEST_OPEN_FILE);
         });
+    }
+
+    private void loadDrawerSnippets() {
+        new Thread(() -> {
+            com.example.coderunner.data.SnippetDbHelper dbh = new com.example.coderunner.data.SnippetDbHelper(this);
+            java.util.List<com.example.coderunner.data.Snippet> list = dbh.getAllSnippets();
+            runOnUiThread(() -> {
+                drawerAdapter.setItems(list);
+                if (list.isEmpty()) {
+                    Toast.makeText(this, "No snippets saved yet.", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }).start();
     }
 
     @Override
@@ -176,6 +345,20 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK && data != null) {
+            if (requestCode == REQUEST_OPEN_SNIPPET) {
+                // snippet selected from list
+                String code = data.getStringExtra("snippet_code");
+                String lang = data.getStringExtra("snippet_lang");
+                String title = data.getStringExtra("snippet_title");
+                if (code != null)
+                    codeInput.setText(code);
+                if (lang != null)
+                    selectLanguageById(lang);
+                if (title != null && !title.isEmpty())
+                    Toast.makeText(this, "Loaded: " + title, Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             Uri uri = data.getData();
             if (requestCode == REQUEST_SAVE_FILE) {
                 saveUri = uri;
@@ -291,6 +474,31 @@ public class MainActivity extends AppCompatActivity {
                 return "python3";
             default:
                 return "python3";
+        }
+    }
+
+    // Return the language id string for the currently selected spinner position
+    private String getSelectedLanguageId() {
+        try {
+            int pos = langSpinner.getSelectedItemPosition();
+            if (pos >= 0 && pos < languageIds.length)
+                return languageIds[pos];
+        } catch (Exception ignored) {
+        }
+        // fallback to map by displayed name
+        return mapLanguage(langSpinner.getSelectedItem().toString());
+    }
+
+    // Select spinner entry by JDoodle language id (best-effort)
+    private void selectLanguageById(String langId) {
+        try {
+            for (int i = 0; i < languageIds.length; i++) {
+                if (languageIds[i].equalsIgnoreCase(langId)) {
+                    langSpinner.setSelection(i);
+                    return;
+                }
+            }
+        } catch (Exception ignored) {
         }
     }
 

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/surface">
@@ -26,25 +27,10 @@
                 android:background="@color/background_dark"
                 android:elevation="4dp"
                 android:paddingStart="12dp"
-                android:paddingEnd="12dp">
-
-                <ImageView
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:layout_marginEnd="12dp"
-                    android:contentDescription="@string/app_name"
-                    android:src="@mipmap/ic_launcher" />
-
-                <TextView
-                    android:id="@+id/toolbarTitle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/app_name"
-                    android:textColor="@color/white"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-            </androidx.appcompat.widget.Toolbar>
+                android:paddingEnd="12dp"
+                app:title="@string/app_name"
+                app:titleTextColor="@color/white"
+                app:logo="@mipmap/ic_launcher" />
 
             <!-- Small spacer -->
             <View
@@ -287,4 +273,15 @@
 
     </FrameLayout>
 
-</FrameLayout>
+    <!-- Left drawer: snippet sidebar -->
+    <FrameLayout
+        android:layout_width="320dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:background="?android:attr/windowBackground">
+
+        <include layout="@layout/drawer_snippet_list" />
+
+    </FrameLayout>
+
+</androidx.drawerlayout.widget.DrawerLayout>
